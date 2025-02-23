@@ -2,11 +2,15 @@ import express from "express";
 import { DBConnection } from "./src/DB/db.connection.js";
 import "./src/utils/helpers/deleteExpiredOtps.js";
 import authController from "./src/modules/auth/auth.controller.js";
+import morgan from "morgan";
+import cors from "cors";
 
 const app = express();
 const port = process.env.PORT;
 app.use(express.json());
 
+app.use(morgan("combined"));
+app.use(cors());
 //DB connection
 await DBConnection();
 

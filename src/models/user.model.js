@@ -40,16 +40,15 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: function () {
-        return this.provider == providers.system ? true : false;
+        return this.provider === providers.system ? true : false;
       },
     },
     mobileNumber: {
       type: String,
-      required: true,
     },
     DOB: {
       type: Date,
-      required: true,
+
       validate: {
         validator: function (value) {
           return isValidDOB(value);
@@ -113,19 +112,27 @@ UserSchema.virtual("userName").get(function () {
 
 UserSchema.pre("save", function (next) {
   try {
-    if (!this.firstName && !this.lastName) {
-      this.firstName = this.email.split("@")[0];
-      this.lastName = "";
+    if (this.provider === providers.google) {
+      next();
+    } else {
+      if (!this.firstName && !this.lastName) {
+        this.firstName = this.email.split("@")[0];
+        this.lastName = "";
+      }
+      console.log(this.password);
+      //hash password
+      const hashedPassword = hashText(this.password);
+      // encrypt mobile number
+      const encryptedMobile = encryptText(this.mobileNumber);
+      //both done before saving new user
+      if (this.password) {
+        this.password = hashedPassword;
+      }
+      if (this.mobileNumber) {
+        this.mobileNumber = encryptedMobile;
+      }
+      next();
     }
-    console.log(this.password);
-    //hash password
-    const hashedPassword = hashText(this.password);
-    // encrypt mobile number
-    const encryptedMobile = encryptText(this.mobileNumber);
-    //both done before saving new user
-    this.password = hashedPassword;
-    this.mobileNumber = encryptedMobile;
-    next();
   } catch (error) {
     next(error);
   }

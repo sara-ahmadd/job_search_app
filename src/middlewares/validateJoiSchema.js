@@ -20,7 +20,7 @@ export const validate = (schema) => {
       file: req.file || req.files || null,
     };
     if (!req.file && !req.files) delete data.file;
-    const checkScema = await schema.validate(data, { abortEarly: false });
+    const checkScema = await schema.validateAsync(data, { abortEarly: false });
 
     if (checkScema.error) {
       return next(

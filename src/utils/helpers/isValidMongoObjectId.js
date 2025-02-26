@@ -1,6 +1,12 @@
 import { isValidObjectId } from "mongoose";
 
-export const isValidMongoObjectId = (objectId) => {
-  if (!objectId) return false;
-  return isValidObjectId(objectId);
+/**
+ * custom validation for validating mongodb objectId in joi
+ * @param {*} value
+ * @param {*} helpers
+ * @returns
+ */
+export const validateObjectId = function (value, helpers) {
+  const result = isValidObjectId(value);
+  if (!result) return helpers.error("any.invalid");
 };

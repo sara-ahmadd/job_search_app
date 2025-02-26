@@ -12,7 +12,10 @@ export const checkUserByEmail = async (email, next) => {
     freezed: false,
     deletedAt: { $exists: false },
   });
+
   if (!user) return next(new Error("user is not found", { cause: 404 }));
+
+  if (user.bannedAt) return next(new Error("user is banned", { cause: 400 }));
   return user;
 };
 
@@ -22,7 +25,12 @@ export const checkUserByEmail = async (email, next) => {
  * @returns
  */
 export const checkUserById = async (id) => {
-  const user = await UserModel.findById(id);
+  const user = await UserModel.findOne({
+    _id: id,
+    freezed: false,
+    deletedAt: { $exists: false },
+  });
   if (!user) return false;
+  if (user.bannedAt) return next(new Error("user is banned", { cause: 400 }));
   return user;
 };

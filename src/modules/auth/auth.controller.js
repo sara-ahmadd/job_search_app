@@ -42,7 +42,7 @@ router.post(
   asyncHandler(loginWithCredentialsService)
 );
 
-//google login
+//google login & signup
 router.post(
   "/google_auth",
   validate(loginWithGmailSchema),

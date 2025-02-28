@@ -3,6 +3,8 @@ import { DBConnection } from "./src/DB/db.connection.js";
 import "./src/utils/helpers/deleteExpiredOtps.js";
 import authController from "./src/modules/auth/auth.controller.js";
 import companyController from "./src/modules/company/company.controller.js";
+import userController from "./src/modules/user/user.controller.js";
+import jobController from "./src/modules/job/job.controller.js";
 import morgan from "morgan";
 import cors from "cors";
 import { createHandler } from "graphql-http/lib/use/express";
@@ -27,6 +29,9 @@ app.get("/", (req, res, next) => {
 app.use("/graphql", createHandler({ schema }));
 app.use("/auth", authController);
 app.use("/company", companyController);
+app.use("/user", userController);
+app.use("/job", jobController);
+
 //handle wrong api calls
 app.all("*", (req, res, next) => {
   return next(new Error("API not found!"));

@@ -74,7 +74,16 @@ export const confirmOtpService = async (req, res, next) => {
   //get otp from req body
   const { otp, email } = req.body;
 
-  const user = await checkUserByEmail(email, next);
+  const user = await UserModel.findOne({
+    email,
+    freezed: false,
+    deletedAt: { $exists: false },
+  });
+
+  if (!user) return next(new Error("user is not found", { cause: 404 }));
+
+  if (user.bannedAt) return next(new Error("user is banned", { cause: 400 }));
+
   if (!user.OTP?.length) return next(new Error("otp is invalid"));
   //get user with this otp of type confirmEmail
   for (const item of user.OTP) {

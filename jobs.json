@@ -1,0 +1,34 @@
+{
+  "jobs": [
+    {
+      "jobTitle": "Software Engineer",
+      "jobLocation": "onsite",
+      "workingTime": "fullTime",
+      "seniorityLevel": "midLevel",
+      "jobDescription": "Develop, test, and maintain scalable web applications.",
+      "technicalSkills": ["JavaScript", "React", "Node.js", "MongoDB"],
+      "softSkills": ["Problem-solving", "Communication", "Teamwork"],
+      "companyId": "65c0d11a4f3c3b02b5c60b5e"
+    },
+    {
+      "jobTitle": "UI/UX Designer",
+      "jobLocation": "remotely",
+      "workingTime": "partTime",
+      "seniorityLevel": "junior",
+      "jobDescription": "Design user interfaces and improve user experiences.",
+      "technicalSkills": ["Figma", "Adobe XD", "User Research", "Wireframing"],
+      "softSkills": ["Creativity", "Attention to Detail", "Empathy"],
+      "companyId": "65c0d11a4f3c3b02b5c60b5f"
+    },
+    {
+      "jobTitle": "Senior Data Scientist",
+      "jobLocation": "hybrid",
+      "workingTime": "fullTime",
+      "seniorityLevel": "senior",
+      "jobDescription": "Analyze large datasets and build predictive models.",
+      "technicalSkills": ["Python", "Machine Learning", "TensorFlow", "SQL"],
+      "softSkills": ["Critical Thinking", "Leadership", "Communication"],
+      "companyId": "65c0d11a4f3c3b02b5c60b60"
+    }
+  ]
+}

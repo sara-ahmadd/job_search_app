@@ -8,7 +8,7 @@ import {
 } from "../../constants.js";
 import { isValidDOB } from "../utils/helpers/isValidDOB.js";
 import { hashText } from "../utils/hashing/hashing.js";
-import { encryptText } from "../utils/encryption/encryption.js";
+import { decrypt, encryptText } from "../utils/encryption/encryption.js";
 import { myEventEmitter } from "../utils/emails/sendEmail.js";
 import { otpVerificationTemplate } from "../utils/emails/otpVerifyEmail.js";
 import { generate } from "otp-generator";
@@ -119,16 +119,15 @@ UserSchema.pre("save", function (next) {
         this.firstName = this.email.split("@")[0];
         this.lastName = "";
       }
-      console.log(this.password);
-      //hash password
-      const hashedPassword = hashText(this.password);
-      // encrypt mobile number
-      const encryptedMobile = encryptText(this.mobileNumber);
-      //both done before saving new user
       if (this.password) {
+        //hash password
+        const hashedPassword = hashText(this.password);
+        //both done before saving new user
         this.password = hashedPassword;
       }
       if (this.mobileNumber) {
+        // encrypt mobile number
+        const encryptedMobile = encryptText(this.mobileNumber);
         this.mobileNumber = encryptedMobile;
       }
       next();
@@ -136,6 +135,22 @@ UserSchema.pre("save", function (next) {
   } catch (error) {
     next(error);
   }
+});
+
+UserSchema.post("findOne", function (doc, next) {
+  if (doc) {
+    doc.mobileNumber = decrypt({ cypherText: doc.mobileNumber });
+  }
+  next();
+});
+
+UserSchema.pre("findOneAndUpdate", function () {
+  this.select("-password");
+});
+
+UserSchema.post("findOneAndUpdate", function (doc, next) {
+  doc.mobileNumber = decrypt({ cypherText: doc.mobileNumber });
+  next();
 });
 
 export const UserModel = model("User", UserSchema);

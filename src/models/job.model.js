@@ -27,7 +27,7 @@ export const JobSchema = new Schema({
     type: String,
   },
   technicalSkills: [{ type: String }],
-  softSkillss: [{ type: String }],
+  softSkills: [{ type: String }],
   addedBy: { type: Types.ObjectId, ref: "User" }, //hr belongs to the company
   updatedBy: { type: Types.ObjectId, ref: "User" }, //hr belongs to the company
   closed: { type: Boolean, default: false },

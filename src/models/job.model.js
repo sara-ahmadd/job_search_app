@@ -1,7 +1,7 @@
 import { model, Schema, Types } from "mongoose";
-import { jobLocations, seniorityLevel, workingTime } from "../../constants";
+import { jobLocations, seniorityLevel, workingTime } from "../../constants.js";
 
-const JobSchema = new Schema({
+export const JobSchema = new Schema({
   jobTitle: {
     type: String,
   },

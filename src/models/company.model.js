@@ -1,4 +1,5 @@
 import { model, Schema, Types } from "mongoose";
+import { JobModel } from "./job.model.js";
 
 export const companySchema = new Schema(
   {
@@ -43,7 +44,13 @@ export const companySchema = new Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+companySchema.virtual("jobs", {
+  localField: "_id",
+  foreignField: "companyId",
+  ref: "Job",
+});
 
 export const CompanyModel = model("Company", companySchema);

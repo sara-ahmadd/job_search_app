@@ -27,7 +27,7 @@ const isAdmin = async (auth) => {
   //use token to get the current user account
   const currentUser = await isAuthenticatedGraphql(auth);
   if (currentUser.role !== roles.admin)
-    throw new Error("you are not authenticated to perfom this action");
+    throw new Error("you are not authorized to perfom this action");
 };
 
 export const getAllDataGraphqlService = async (parent, args) => {

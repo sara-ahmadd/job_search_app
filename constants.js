@@ -52,3 +52,11 @@ export const fileObject = {
   encoding: joi.string().required(),
   mimetype: joi.string().required(),
 };
+
+export const jobStatus = {
+  pending: "pending",
+  accepted: "accepted",
+  viewed: "viewed",
+  inConsideration: "in consideration",
+  rejected: "rejected",
+};

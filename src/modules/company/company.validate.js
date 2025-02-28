@@ -74,3 +74,36 @@ export const uploadCoverPicSchema = joi
 export const deleteComanySchema = joi.object({
   id: joi.string().required(),
 });
+
+export const getCompanySchema = joi.object({
+  id: joi.string().required(),
+});
+
+export const deleteCompanyLogoSchema = joi.object({
+  id: joi.string().required(),
+});
+
+export const deleteCompanyCoverPictureSchema = joi.object({
+  id: joi.string().required(),
+});
+
+export const findCompanySchema = joi.object({
+  name: joi.string().required(),
+});
+
+export const addCompanyLogoSchema = joi.object({
+  file: joi
+    .object({ ...fileObject, fieldname: joi.string().valid("logo").required() })
+    .required(),
+  id: joi.string().required(),
+});
+
+export const addCompanyCoverPicSchema = joi.object({
+  file: joi
+    .object({
+      ...fileObject,
+      fieldname: joi.string().valid("coverPic").required(),
+    })
+    .required(),
+  id: joi.string().required(),
+});

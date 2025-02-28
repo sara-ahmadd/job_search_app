@@ -9,6 +9,9 @@ export const isAuthenticated = async (req, res, next) => {
   const data = verifyToken(token);
   const user = await UserModel.findById(data.id);
   if (!user) return next(new Error("User is not found"));
+  if (!user.isConfirmed)
+    return next(new Error("User account is not activated", { cause: 400 }));
+  if (user.freezed) return next(new Error("User is deleted", { cause: 400 }));
   req.user = user;
   return next();
 };

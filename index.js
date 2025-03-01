@@ -137,3 +137,4 @@ io.on("connection", async (socket) => {
   });
   console.log("Frontend connected successfully");
 });
+export default app;

@@ -18,12 +18,21 @@ import { authenticateUser } from "./src/socket/middlewares/authenticateUser.js";
 import { checkCompanyById } from "./src/utils/helpers/checkCompany.js";
 import { ChatModel } from "./src/models/chat.model.js";
 import { isHr } from "./src/utils/helpers/checkChatStart.js";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
 
+// Apply the rate limiting middleware to all requests.
+app.use(limiter);
 app.use(morgan("combined"));
 app.use(cors());
 

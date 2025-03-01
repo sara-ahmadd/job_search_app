@@ -3,7 +3,7 @@ import fs from "fs";
 
 export const isValidFileType = (validTypes = [""]) => {
   return async (req, res, next) => {
-    const filePath = req.file.path;
+    const filePath = req.file?.path;
     //read file and convert it to buffer
     const buffer = fs.readFileSync(filePath);
     //check file mime type

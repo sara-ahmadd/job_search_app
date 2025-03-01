@@ -9,6 +9,7 @@ import morgan from "morgan";
 import cors from "cors";
 import { createHandler } from "graphql-http/lib/use/express";
 import { schema } from "./src/app.graphql.js";
+import applicationController from "./src/modules/application/application.controller.js";
 
 const app = express();
 const port = process.env.PORT;
@@ -31,6 +32,7 @@ app.use("/auth", authController);
 app.use("/company", companyController);
 app.use("/user", userController);
 app.use("/job", jobController);
+app.use("/application", applicationController);
 
 //handle wrong api calls
 app.all("*", (req, res, next) => {

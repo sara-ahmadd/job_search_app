@@ -9,9 +9,15 @@ import { validateObjectId } from "../../utils/helpers/isValidMongoObjectId.js";
 export const jobFields = {
   jobTitle: joi.string(),
 
-  jobLocation: joi.string().valid(...Object.values(jobLocations)),
-  workingTime: joi.string().valid(...Object.values(workingTime)),
-  seniorityLevel: joi.string().valid(...Object.values(seniorityLevel)),
+  jobLocation: joi
+    .string()
+    .valid(...Object.values(jobLocations).map((x) => x.toLowerCase())),
+  workingTime: joi
+    .string()
+    .valid(...Object.values(workingTime).map((x) => x.toLowerCase())),
+  seniorityLevel: joi
+    .string()
+    .valid(...Object.values(seniorityLevel).map((x) => x.toLowerCase())),
   jobDescription: joi.string(),
 
   technicalSkills: joi.array().items(joi.string()),
@@ -55,3 +61,22 @@ export const updateJobSchema = joi
 export const deleteJobSchema = joi.object({
   jobId: joi.string().custom(validateObjectId).required(),
 });
+
+export const getAllJobsForSingleCompanySchema = joi
+  .object({
+    jobId: joi.string().custom(validateObjectId),
+    companyName: joi.string().required(),
+    pageNumber: joi.string(),
+  })
+  .required();
+
+export const getAllJobsSchema = joi
+  .object({
+    workingTime: jobFields.workingTime,
+    jobLocation: jobFields.jobLocation,
+    seniorityLevel: jobFields.seniorityLevel,
+    jobTitle: jobFields.jobTitle,
+    technicalSkills: jobFields.technicalSkills,
+    pageNumber: joi.string(),
+  })
+  .required();

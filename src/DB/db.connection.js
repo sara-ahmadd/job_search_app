@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import "./../utils/mongoosePagination.js";
 
 export const DBConnection = async () => {
   await mongoose

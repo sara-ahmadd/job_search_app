@@ -3,12 +3,12 @@
     {
       "jobTitle": "Software Engineer",
       "jobLocation": "onsite",
-      "workingTime": "fullTime",
+      "workingTime": "full-time",
       "seniorityLevel": "midLevel",
       "jobDescription": "Develop, test, and maintain scalable web applications.",
       "technicalSkills": ["JavaScript", "React", "Node.js", "MongoDB"],
       "softSkills": ["Problem-solving", "Communication", "Teamwork"],
-      "companyId": "65c0d11a4f3c3b02b5c60b5e"
+      "companyId": "67bf785ce8722db68a60b0bf"
     },
     {
       "jobTitle": "UI/UX Designer",
@@ -18,17 +18,57 @@
       "jobDescription": "Design user interfaces and improve user experiences.",
       "technicalSkills": ["Figma", "Adobe XD", "User Research", "Wireframing"],
       "softSkills": ["Creativity", "Attention to Detail", "Empathy"],
-      "companyId": "65c0d11a4f3c3b02b5c60b5f"
+      "companyId": "67bf785ce8722db68a60b0bf"
     },
     {
       "jobTitle": "Senior Data Scientist",
       "jobLocation": "hybrid",
-      "workingTime": "fullTime",
+      "workingTime": "full-time",
       "seniorityLevel": "senior",
       "jobDescription": "Analyze large datasets and build predictive models.",
       "technicalSkills": ["Python", "Machine Learning", "TensorFlow", "SQL"],
       "softSkills": ["Critical Thinking", "Leadership", "Communication"],
-      "companyId": "65c0d11a4f3c3b02b5c60b60"
+      "companyId": "67bf785ce8722db68a60b0bf"
+    },
+    {
+      "jobTitle": "Backend Developer",
+      "jobLocation": "onsite",
+      "workingTime": "full-time",
+      "seniorityLevel": "mid-level",
+      "jobDescription": "Develop and maintain server-side applications and databases.",
+      "technicalSkills": ["Node.js", "Express", "MongoDB", "REST APIs"],
+      "softSkills": ["Problem-solving", "Collaboration", "Time Management"],
+      "companyId": "67bf785ce8722db68a60b0bf"
+    },
+    {
+      "jobTitle": "Digital Marketing Specialist",
+      "jobLocation": "remotely",
+      "workingTime": "partTime",
+      "seniorityLevel": "junior",
+      "jobDescription": "Plan and execute digital marketing campaigns to increase brand awareness.",
+      "technicalSkills": [
+        "SEO",
+        "Google Ads",
+        "Content Marketing",
+        "Analytics"
+      ],
+      "softSkills": ["Creativity", "Communication", "Analytical Thinking"],
+      "companyId": "67bf785ce8722db68a60b0bf"
+    },
+    {
+      "jobTitle": "Project Manager",
+      "jobLocation": "hybrid",
+      "workingTime": "full-time",
+      "seniorityLevel": "senior",
+      "jobDescription": "Lead and manage projects to ensure successful execution and delivery.",
+      "technicalSkills": [
+        "Agile Methodologies",
+        "Scrum",
+        "Risk Management",
+        "Budgeting"
+      ],
+      "softSkills": ["Leadership", "Decision-making", "Strategic Planning"],
+      "companyId": "67bf785ce8722db68a60b0bf"
     }
   ]
 }

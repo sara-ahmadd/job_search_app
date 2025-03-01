@@ -24,9 +24,13 @@ import {
   getCompanySchema,
   updateComanySchema,
 } from "./company.validate.js";
+
+import jobController from "./../job/job.controller.js";
 import { Router } from "express";
 
 const router = Router();
+
+router.use("/all_jobs/:companyName/", jobController);
 
 //add company
 router.post(

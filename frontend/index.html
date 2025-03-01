@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Socket io app</title>
+  </head>
+  <body>
+    hello socket io app
+    <button id="start">start conversation</button>
+    <div><input type="text" id="msg" /></div>
+    <div><button id="send">send message</button></div>
+    <hr />
+    <div><button id="history">get history</button></div>
+    <script type="module">
+      import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+
+      const socket = io("http://localhost:8000", {
+        auth: {
+          token:
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YmE0MzhmMzU3MGRmNGE5NWQ5ZDljYSIsImVtYWlsIjoidGFzdHkucG9zc3VtLnZtbndAbGV0dGVyZ3VhcmQubmV0IiwiaWF0IjoxNzQwODY3NTc5LCJleHAiOjE3NDA4NzExNzl9.vRpwzHf-uTR4vHwmuNGzV8mZyk1DAoaGhUsPEgB_mTU",
+        },
+      });
+      document.querySelector("#start").addEventListener("click", () => {
+        console.log("Start conversation button clicked!");
+        socket.emit("start_conversation", {
+          companyId: "67bf785ce8722db68a60b0bf",
+        });
+      });
+
+      document.querySelector("#send").addEventListener("click", () => {
+        socket.emit("sendMessage", {
+          message: document.querySelector("#msg").value,
+          to: "67bf8b8fa83429ce8fc42b19",
+          companyId: "67bf785ce8722db68a60b0bf",
+        });
+      });
+      //get chat history
+      document.querySelector("#history").addEventListener("click", () => {
+        socket.emit("get_history", { to: "67bf8b8fa83429ce8fc42b19" });
+      });
+      socket.on("get_history", ({ data }) => {
+        console.log(data);
+      });
+      //get the message
+      socket.on("sendMessage", ({ from, message }) => {
+        console.log("you got a message from " + from);
+        console.log("the message is " + message);
+      });
+
+      socket.on("connect", () => {
+        console.log("connected to backend");
+      });
+
+      socket.on("error", (err) => {
+        console.log(err);
+      });
+    </script>
+  </body>
+</html>

@@ -12,22 +12,19 @@ const chatSchema = new Schema({
   senderId: {
     type: Types.ObjectId,
     required: true,
-    validate: {
-      validator: function (value) {
-        // senderId (must be HR or company owner) (The sender id , required)
-      },
-      message: (props) => `${props.value} is not a valid date of birth!`,
-    },
+    ref: "User",
   },
   receiverId: {
     type: Types.ObjectId,
     required: true,
+    ref: "User",
   },
   messages: [
     {
       message: { type: String },
       senderId: {
         type: Types.ObjectId,
+        ref: "User",
       },
     },
   ],

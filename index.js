@@ -61,7 +61,7 @@ const server = app.listen(port, () => {
 
 //socket initialization
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "*", // Update this with your frontend domain for security
   },

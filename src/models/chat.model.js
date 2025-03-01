@@ -1,13 +1,5 @@
 import { model, Schema, Types } from "mongoose";
 
-/**
- * ## Chat Collection
-
-1. senderId (must be HR or company owner) (The sender id , required)
-2. receiverId (any user) (The sender id , required) 
-3. messages (array of  {message,senderId})
- */
-
 const chatSchema = new Schema({
   senderId: {
     type: Types.ObjectId,

@@ -1,4 +1,5 @@
 import { jobStatus } from "../../../constants.js";
+import { io } from "../../../index.js";
 import { JobApplication } from "../../models/application.model.js";
 import { JobModel } from "../../models/job.model.js";
 import { UserModel } from "../../models/user.model.js";
@@ -35,6 +36,8 @@ export const applyToJobService = async (req, res, next) => {
     userCv: { secure_url, public_id },
     jobId,
   });
+  //notify hr that job application is submitted
+  io.to(job.addedBy).emit("application_submitted", { candidate: user._id });
 
   return sendResponse(res, 201, "application sent successfully", application);
 };

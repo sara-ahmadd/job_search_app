@@ -1,0 +1,12 @@
+version: "v2.32.4"
+
+services:
+  job-search-app-prod:
+    build:
+      context: .
+      target: prod
+    container_name: "job-search-app-prod-cont"
+    ports:
+      - "4001:8000"
+    env_file:
+      - ./.env

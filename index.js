@@ -19,6 +19,7 @@ import { checkCompanyById } from "./src/utils/helpers/checkCompany.js";
 import { ChatModel } from "./src/models/chat.model.js";
 import { isHr } from "./src/utils/helpers/checkChatStart.js";
 import rateLimit from "express-rate-limit";
+import { connectSocket } from "./src/socket/socket.connection.js";
 
 const app = express();
 const port = process.env.PORT;
@@ -75,66 +76,6 @@ export const io = new Server(server, {
     origin: "*", // Update this with your frontend domain for security
   },
 });
+await connectSocket(io);
 
-//authenticate current logged in user and add his name & id to socket object
-io.use(authenticateUser);
-
-//after connection with socket, emit the start-conversation event between the currently logged-in user
-// and the receiver user, so i need the company which this user belongs to,
-// to checkif he is the company owner or from hrs
-io.on("connection", async (socket) => {
-  socket.on("start_conversation", async ({ companyId }) => {
-    console.log("🚀 Received start_conversation for company:", companyId);
-    await isHr(companyId, socket);
-  });
-
-  //get the message and the id of the receiver user
-  socket.on("sendMessage", async ({ to, message, companyId }) => {
-    let chat = await ChatModel.findOne({
-      $or: [
-        { senderId: socket.userId, receiverId: to },
-        { senderId: to, receiverId: socket.userId },
-      ],
-    });
-
-    if (!chat) {
-      await isHr(companyId, socket);
-      // If chat doesn't exist, create a new one
-      chat = await ChatModel.create({
-        senderId: socket.userId,
-        receiverId: to,
-        messages: [{ senderId: socket.userId, message }],
-      });
-    } else {
-      chat = await ChatModel.findOneAndUpdate(
-        { _id: chat._id },
-        { $push: { messages: { senderId: socket.userId, message } } },
-        { new: true } // return updated document
-      );
-    }
-    console.log(chat);
-    socket.emit("sendMessage", { from: socket.userName, message });
-  });
-
-  //on firing it from frontend, emit event that gets all chat history between current user and other one
-  socket.on("get_history", async ({ to }) => {
-    let chatHistory = await ChatModel.findOne({
-      $or: [
-        { senderId: socket.userId, receiverId: to },
-        { senderId: to, receiverId: socket.userId },
-      ],
-    }).populate([
-      {
-        path: "senderId",
-        select: "firstName lastName profilePic coverPick email",
-      },
-      {
-        path: "receiverId",
-        select: "firstName lastName profilePic coverPick email",
-      },
-    ]);
-    socket.emit("get_history", { data: chatHistory });
-  });
-  console.log("Frontend connected successfully");
-});
 export default app;

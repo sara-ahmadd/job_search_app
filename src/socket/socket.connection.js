@@ -1,5 +1,3 @@
-import { ChatModel } from "../models/chat.model";
-import { isHr } from "../utils/helpers/checkChatStart";
 import { chatSocketService } from "./chat.socket";
 import { authenticateUser } from "./middlewares/authenticateUser";
 

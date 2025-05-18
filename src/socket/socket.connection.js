@@ -1,5 +1,5 @@
-import { chatSocketService } from "./chat.socket";
-import { authenticateUser } from "./middlewares/authenticateUser";
+import { chatSocketService } from "./chat.socket.js";
+import { authenticateUser } from "./middlewares/authenticateUser.js";
 
 export const connectSocket = async (io) => {
   //authenticate current logged in user and add his name & id to socket object

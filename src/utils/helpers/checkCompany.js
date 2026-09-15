@@ -1,4 +1,4 @@
-import { CompanyModel } from "../../models/company.model.js";
+import { companyRepository } from "../../models/company.model.js";
 
 /**
  * check if company with this id is found and approved by admin
@@ -6,7 +6,7 @@ import { CompanyModel } from "../../models/company.model.js";
  * @returns {import("mongoose").MongooseDocument} company data
  */
 export const checkCompanyById = async (companyId, next) => {
-  const company = await CompanyModel.findById(companyId);
+  const company = await companyRepository.findById(companyId);
   if (!company) return next(new Error("company is not found"));
   if (!company.approvedByAdmin)
     return next(new Error("company is not approved"));

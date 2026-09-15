@@ -1,4 +1,4 @@
-import { CompanyModel } from "../../models/company.model.js";
+import { companyRepository } from "../../models/company.model.js";
 import { jest } from "@jest/globals";
 
 import "../../utils/mongoosePagination.js";
@@ -6,7 +6,7 @@ import paginate from "../../utils/mongoosePagination.js";
 
 describe("test paginate function added to mongoose query prototype", () => {
   test("check paginate is added successfully", async () => {
-    const query = CompanyModel.find();
+    const query = companyRepository.find();
     expect(typeof query.paginate).toBe("function");
   });
   test("check paginate is added successfully", async () => {

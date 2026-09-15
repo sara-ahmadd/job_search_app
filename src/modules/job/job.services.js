@@ -1,5 +1,5 @@
-import { CompanyModel } from "../../models/company.model.js";
-import { JobModel } from "../../models/job.model.js";
+import { companyRepository } from "../../models/company.model.js";
+import { jobRepository } from "../../models/job.model.js";
 import { checkUserById } from "../../utils/helpers/checkUser.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
 
@@ -10,7 +10,7 @@ import { sendResponse } from "../../utils/helpers/globalResHandler.js";
  * @returns
  */
 const checkCompany = async (companyId, next) => {
-  const company = await CompanyModel.findById(companyId);
+  const company = await companyRepository.findById(companyId);
 
   if (!company) return next(new Error("company is not found", { cause: 400 }));
   if (company.bannedAt)
@@ -19,7 +19,7 @@ const checkCompany = async (companyId, next) => {
     return next(new Error("company is deleted", { cause: 400 }));
   if (!company.approvedByAdmin)
     return next(
-      new Error("company account is not approved by admin", { cause: 400 })
+      new Error("company account is not approved by admin", { cause: 400 }),
     );
   return company;
 };
@@ -37,10 +37,10 @@ export const addJobService = async (req, res, next) => {
     !company.hrs.map(String).includes(user._id.toString())
   )
     return next(
-      new Error("you are not authorized to add a job", { cause: 400 })
+      new Error("you are not authorized to add a job", { cause: 400 }),
     );
 
-  const job = await JobModel.create({
+  const job = await jobRepository.create({
     ...req.body,
     seniorityLevel: req.body.seniorityLevel?.toLowerCase(),
     addedBy: user._id,
@@ -54,7 +54,7 @@ export const updateJobService = async (req, res, next) => {
   const { user } = req;
   await checkUserById(user._id, next);
 
-  const job = await JobModel.findById(jobId);
+  const job = await jobRepository.findById(jobId);
 
   if (!job) return next(new Error("job is not found", { cause: 400 }));
   if (job.closed) return next(new Error("job is closed", { cause: 400 }));
@@ -65,16 +65,16 @@ export const updateJobService = async (req, res, next) => {
     !company.hrs.map(String).includes(user._id.toString())
   )
     return next(
-      new Error("you are not authorized to update a job", { cause: 400 })
+      new Error("you are not authorized to update a job", { cause: 400 }),
     );
 
-  const updatedJob = await JobModel.findByIdAndUpdate(
+  const updatedJob = await jobRepository.findByIdAndUpdate(
     jobId,
     {
       ...req.body,
       updatedBy: user._id,
     },
-    { new: true }
+    { new: true },
   );
   return sendResponse(res, 201, "job updated successfully", updatedJob);
 };
@@ -84,7 +84,7 @@ export const deleteJobService = async (req, res, next) => {
   const { user } = req;
   await checkUserById(user._id, next);
 
-  const job = await JobModel.findById(jobId);
+  const job = await jobRepository.findById(jobId);
 
   if (!job) return next(new Error("job is not found", { cause: 400 }));
 
@@ -94,10 +94,10 @@ export const deleteJobService = async (req, res, next) => {
     !company.hrs.map(String).includes(user._id.toString())
   )
     return next(
-      new Error("you are not authorized to delete this job", { cause: 400 })
+      new Error("you are not authorized to delete this job", { cause: 400 }),
     );
 
-  const deletedJob = await JobModel.findByIdAndDelete({ _id: jobId });
+  const deletedJob = await jobRepository.findByIdAndDelete({ _id: jobId });
 
   return sendResponse(res, 201, "job deleted successfully", deletedJob);
 };
@@ -106,33 +106,37 @@ export const getAllJobsForSingleCompanyService = async (req, res, next) => {
   const { companyName } = req.params;
   const { jobId, pageNumber } = req.query;
 
-  const company = await CompanyModel.findOne({
-    name: { $regex: new RegExp(companyName, "i") },
-  }).populate("jobs");
+  const company = await companyRepository
+    .findOne({
+      name: { $regex: new RegExp(companyName, "i") },
+    })
+    .populate("jobs");
 
   if (!company) return next(new Error("company is not found"));
 
   if (jobId) {
     if (company.jobs.map((j) => j._id.toString()).includes(jobId.toString())) {
-      const job = await JobModel.findById(jobId);
+      const job = await jobRepository.findById(jobId);
       if (!job) return next(new Error("job is not found", { cause: 400 }));
       if (job.closed) return next(new Error("job is closed", { cause: 400 }));
 
       return sendResponse(res, 201, "job retreived successfully", job);
     }
   }
-  const allJobs = await JobModel.find({ companyId: company._id }).paginate(
-    pageNumber
-  );
+  const allJobs = await jobRepository
+    .find({ companyId: company._id })
+    .paginate(pageNumber);
   return sendResponse(res, 201, "jobs retreived successfully", allJobs);
 };
 
 export const getAllJobsService = async (req, res, next) => {
   const { pageNumber, ...reqQuery } = req.query;
 
-  const allJobs = await JobModel.find({
-    ...reqQuery,
-    closed: false,
-  }).paginate(pageNumber);
+  const allJobs = await jobRepository
+    .find({
+      ...reqQuery,
+      closed: false,
+    })
+    .paginate(pageNumber);
   return sendResponse(res, 201, "jobs retreived successfully", allJobs);
 };

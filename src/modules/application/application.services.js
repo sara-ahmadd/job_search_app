@@ -1,7 +1,7 @@
 import { jobStatus } from "../../../constants.js";
 import { io } from "../../../index.js";
-import { JobApplication } from "../../models/application.model.js";
-import { JobModel } from "../../models/job.model.js";
+import { applicationRepository } from "../../models/application.model.js";
+import { jobRepository } from "../../models/job.model.js";
 import { userRepository } from "../../models/user.model.js";
 import cloudinary from "../../utils/cloudUpload.js";
 import { acceptanceTemplate } from "../../utils/emails/applicationEmails/acceptance.js";
@@ -15,7 +15,7 @@ export const applyToJobService = async (req, res, next) => {
   const { user, body, file } = req;
   const { jobId } = req.params;
   //check if job still available
-  const job = await JobModel.findById(jobId);
+  const job = await jobRepository.findById(jobId);
   if (!job) return next(new Error("job is not found", { cause: 400 }));
   if (job.closed) return next(new Error("job is closed", { cause: 400 }));
 
@@ -30,7 +30,7 @@ export const applyToJobService = async (req, res, next) => {
     },
   );
 
-  const application = await JobApplication.create({
+  const application = await applicationRepository.create({
     ...body,
     userId: user._id,
     userCv: { secure_url, public_id },
@@ -47,7 +47,7 @@ export const getAllApplicationsService = async (req, res, next) => {
   const { jobId } = req.params;
   const { pageNumber } = req.query;
 
-  const job = await JobModel.findById(jobId).populate("applications");
+  const job = await jobRepository.findById(jobId).populate("applications");
   if (!job) return next(new Error("job is not found", { cause: 404 }));
 
   const company = await checkCompanyById(job.companyId, next);
@@ -58,7 +58,8 @@ export const getAllApplicationsService = async (req, res, next) => {
     return next(new Error("you are not authorized to display applications"));
   }
 
-  const applications = await JobApplication.find({ jobId })
+  const applications = await applicationRepository
+    .find({ jobId })
     .populate({
       path: "userId",
       select: "firstName lastName email mobileNumber profilePic coverPic",
@@ -91,12 +92,12 @@ export const updateApplicationsService = async (req, res, next) => {
   const { user } = req;
   const { applicationId } = req.params;
   const { status } = req.query;
-
+  applicationRepository;
   const application = await JobApplication.findById(applicationId);
 
   const candidate = await userRepository.findById(application.userId);
 
-  const job = await JobModel.findById(application.jobId);
+  const job = await jobRepository.findById(application.jobId);
 
   const company = await checkCompanyById(job.companyId);
   if (

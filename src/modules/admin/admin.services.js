@@ -1,5 +1,5 @@
 import { userRepository } from "../../models/user.model.js";
-import { CompanyModel } from "../../models/company.model.js";
+import { companyRepository } from "../../models/company.model.js";
 import { isAuthenticatedGraphql } from "../../graphQl_middlewares/isAuthenticated.js";
 import { roles } from "../../../constants.js";
 
@@ -9,7 +9,7 @@ import { roles } from "../../../constants.js";
  * @returns Promise<Mongodb Document>
  */
 const checkCompany = async (companyId) => {
-  const company = await CompanyModel.findOne({
+  const company = await companyRepository.findOne({
     _id: companyId,
     deletedAt: { $exists: false },
   });
@@ -36,7 +36,7 @@ export const getAllDataGraphqlService = async () => {
         "-_id firstName lastName profilePic email coverPic gender DOB mobileNumber",
       )
       .lean(),
-    CompanyModel.find().select("-_id").lean(),
+    companyRepository.find().select("-_id").lean(),
   ]);
 
   return {
@@ -85,7 +85,7 @@ export const banOrUnbanCompany = async (parent, args) => {
   const company = await checkCompany(companyId);
 
   if (company.bannedAt) {
-    await CompanyModel.updateOne(
+    await companyRepository.updateOne(
       { _id: companyId },
       { $unset: { bannedAt: "" } },
     );
@@ -94,7 +94,7 @@ export const banOrUnbanCompany = async (parent, args) => {
       statusCode: 200,
     };
   }
-  await CompanyModel.updateOne(
+  await companyRepository.updateOne(
     { _id: companyId },
     { bannedAt: new Date().getTime() },
   );

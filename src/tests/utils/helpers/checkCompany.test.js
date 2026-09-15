@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { CompanyModel } from "../../../models/company.model.js";
+import { companyRepository } from "../../../models/company.model.js";
 import { checkCompanyById } from "../../../utils/helpers/checkCompany.js";
 
 describe("check if company with this id is already approved by admin", () => {
@@ -32,7 +32,7 @@ describe("check if company with this id is already approved by admin", () => {
 
       approvedByAdmin: true,
     };
-    jest.spyOn(CompanyModel, "findById").mockResolvedValue(fakeCompany);
+    jest.spyOn(companyRepository, "findById").mockResolvedValue(fakeCompany);
     let id = 1;
     let next = jest.fn();
     let company = await checkCompanyById(id, next);

@@ -1,14 +1,16 @@
 import { roles } from "../../../constants.js";
-import { CompanyModel } from "../../models/company.model.js";
+import { companyRepository } from "../../models/company.model.js";
 import { checkCompanyById } from "../../utils/helpers/checkCompany.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
 import cloudinary from "./../../utils/cloudUpload.js";
 
 const isOwner = async (userId, companyId, next) => {
-  const company = await CompanyModel.findById(companyId);
+  const company = await companyRepository.findById(companyId);
   if (company.createdBy.toString() !== userId.toString()) {
     next(
-      new Error("you are not authorized to perform this action", { cause: 400 })
+      new Error("you are not authorized to perform this action", {
+        cause: 400,
+      }),
     );
     return false;
   }
@@ -26,13 +28,13 @@ export const addNewCompanyService = async (req, res, next) => {
       file.path,
       {
         folder: `${process.env.CLOUD_APP_FOLDER}/companies/legalAttachments`,
-      }
+      },
     );
     image = { secure_url, public_id };
   }
   let company;
   if (image?.secure_url) {
-    company = await CompanyModel.create({
+    company = await companyRepository.create({
       name,
       companyEmail,
       description,
@@ -43,7 +45,7 @@ export const addNewCompanyService = async (req, res, next) => {
       createdBy: user._id,
     });
   } else {
-    company = await CompanyModel.create({
+    company = await companyRepository.create({
       name,
       companyEmail,
       description,
@@ -57,7 +59,7 @@ export const addNewCompanyService = async (req, res, next) => {
     res,
     201,
     "company account created successfully and will be approved by admin soon",
-    company
+    company,
   );
 };
 
@@ -74,7 +76,7 @@ export const updateCompanyService = async (req, res, next) => {
   const owner = await isOwner(user._id, companyId, next);
   if (!owner) return;
 
-  const updatedCompany = await CompanyModel.findByIdAndUpdate(
+  const updatedCompany = await companyRepository.findByIdAndUpdate(
     companyId,
     {
       name,
@@ -86,14 +88,14 @@ export const updateCompanyService = async (req, res, next) => {
       address,
       companyEmail,
     },
-    { new: true }
+    { new: true },
   );
 
   return sendResponse(
     res,
     200,
     "company data updated successfully",
-    updatedCompany
+    updatedCompany,
   );
 };
 
@@ -114,7 +116,7 @@ export const deleteCompanyService = async (req, res, next) => {
 
 export const getCompanyService = async (req, res, next) => {
   const { id } = req.params;
-  const company = await CompanyModel.findById(id).populate("jobs");
+  const company = await companyRepository.findById(id).populate("jobs");
   if (!company || company?.deletedAt)
     return next(new Error("company is not found"));
 
@@ -123,7 +125,7 @@ export const getCompanyService = async (req, res, next) => {
 
 export const findCompanyService = async (req, res, next) => {
   const { name } = req.query;
-  const company = await CompanyModel.findOne({
+  const company = await companyRepository.findOne({
     name: { $regex: new RegExp(name, "i") },
   });
   if (!company || company?.deletedAt)
@@ -147,7 +149,7 @@ export const addCompanyLogoService = async (req, res, next) => {
     file.path,
     {
       folder: `/${process.env.CLOUD_APP_FOLDER}/companies/logo`,
-    }
+    },
   );
   company.logo = { secure_url, public_id };
   await company.save();
@@ -173,7 +175,7 @@ export const addCompanyCoverPicService = async (req, res, next) => {
     file.path,
     {
       folder: `/${process.env.CLOUD_APP_FOLDER}/companies/coverPic`,
-    }
+    },
   );
   company.coverPic = { secure_url, public_id };
   await company.save();
@@ -198,7 +200,7 @@ export const deleteCompanyLogoService = async (req, res, next) => {
 
   if (company?.logo.secure_url) {
     //remove logo from database and cloudinary as well
-    await CompanyModel.findByIdAndUpdate(id, { $unset: { logo: "" } });
+    await companyRepository.findByIdAndUpdate(id, { $unset: { logo: "" } });
     await cloudinary.uploader.destroy(company.logo.public_id);
     return sendResponse(res, 200, "logo deleted successfully");
   } else {
@@ -214,7 +216,7 @@ export const deleteCompanyCoverPicService = async (req, res, next) => {
   if (!owner) return;
   if (company?.coverPic.secure_url) {
     //remove coverPic from database and cloudinary as well
-    await CompanyModel.findByIdAndUpdate(id, { $unset: { coverPic: "" } });
+    await companyRepository.findByIdAndUpdate(id, { $unset: { coverPic: "" } });
     await cloudinary.uploader.destroy(company.coverPic.public_id);
     return sendResponse(res, 200, "cover picture deleted successfully");
   } else {

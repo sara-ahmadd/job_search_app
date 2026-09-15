@@ -1,6 +1,6 @@
 import { generate } from "otp-generator";
 import { otpTypes, providers, sendEmailEvent } from "../../../constants.js";
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 import { compareHashedText, hashText } from "../../utils/hashing/hashing.js";
 import { checkUserByEmail } from "../../utils/helpers/checkUser.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
@@ -30,7 +30,7 @@ const sendConfirmOtp = (email, otpType, emailSubject) => {
     sendEmailEvent,
     email,
     emailSubject,
-    otpVerificationTemplate(otp)
+    otpVerificationTemplate(otp),
   );
   //hash otp
   const hashedOtp = hashText(otp);
@@ -48,15 +48,15 @@ export const registerService = async (req, res, next) => {
   const { email, password, firstName, lastName, DOB, mobileNumber, gender } =
     req.body;
   //check if email already exists
-  const user = await UserModel.findOne({ email });
+  const user = await userRepository.findOne({ email });
   if (user) return next(new Error("this email already exists"));
 
   const otpObject = sendConfirmOtp(
     email,
     otpTypes.confirmEmail,
-    "Account Verification Email"
+    "Account Verification Email",
   );
-  const newUser = await UserModel.create({
+  const newUser = await userRepository.create({
     email,
     password,
     firstName,
@@ -74,7 +74,7 @@ export const confirmOtpService = async (req, res, next) => {
   //get otp from req body
   const { otp, email } = req.body;
 
-  const user = await UserModel.findOne({
+  const user = await userRepository.findOne({
     email,
     freezed: false,
     deletedAt: { $exists: false },
@@ -98,7 +98,7 @@ export const confirmOtpService = async (req, res, next) => {
         return next(new Error("otp is invalid"));
       } else {
         //in case of true >> change isConfirmed to true
-        await UserModel.updateOne({ email }, { isConfirmed: true });
+        await userRepository.updateOne({ email }, { isConfirmed: true });
         break;
       }
     }
@@ -125,11 +125,11 @@ export const loginWithCredentialsService = async (req, res, next) => {
 
   const accessToken = generateToken(
     { id: user._id, email },
-    process.env.ACCESS_EXPIRY_TIME
+    process.env.ACCESS_EXPIRY_TIME,
   );
   const refreshToken = generateToken(
     { id: user._id, email },
-    process.env.REFRESH_EXPIRY_TIME
+    process.env.REFRESH_EXPIRY_TIME,
   );
   return sendResponse(res, 200, "Logged in successfully", {
     accessToken,
@@ -154,7 +154,7 @@ export const loginWithGmailService = async (req, res, next) => {
     userData;
   if (!email_verified) return next(new Error("invalid email"));
 
-  const user = await UserModel.findOne({
+  const user = await userRepository.findOne({
     email,
     firstName: given_name,
     lastName: family_name,
@@ -164,18 +164,18 @@ export const loginWithGmailService = async (req, res, next) => {
   if (user) {
     const accessToken = generateToken(
       { id: user._id, email },
-      process.env.ACCESS_EXPIRY_TIME
+      process.env.ACCESS_EXPIRY_TIME,
     );
     const refreshToken = generateToken(
       { id: user._id, email },
-      process.env.REFRESH_EXPIRY_TIME
+      process.env.REFRESH_EXPIRY_TIME,
     );
     return sendResponse(res, 200, "Logged in with google successfully", {
       accessToken,
       refreshToken,
     });
   }
-  const newUser = await UserModel.create({
+  const newUser = await userRepository.create({
     email,
     firstName: given_name,
     lastName: family_name,
@@ -185,11 +185,11 @@ export const loginWithGmailService = async (req, res, next) => {
   });
   const accessToken = generateToken(
     { id: newUser._id, email },
-    process.env.ACCESS_EXPIRY_TIME
+    process.env.ACCESS_EXPIRY_TIME,
   );
   const refreshToken = generateToken(
     { id: newUser._id, email },
-    process.env.REFRESH_EXPIRY_TIME
+    process.env.REFRESH_EXPIRY_TIME,
   );
   return sendResponse(res, 200, "Logged in with google successfully", {
     accessToken,
@@ -205,16 +205,16 @@ export const forgotPasswordService = async (req, res, next) => {
   const otpObject = sendConfirmOtp(
     email,
     otpTypes.forgetPassword,
-    "Reset Password Email"
+    "Reset Password Email",
   );
 
-  await UserModel.findByIdAndUpdate(user._id, {
+  await userRepository.findByIdAndUpdate(user._id, {
     OTP: [otpObject],
   });
   return sendResponse(
     res,
     201,
-    "OTP is sent to your email, use it to be able reset your password"
+    "OTP is sent to your email, use it to be able reset your password",
   );
 };
 
@@ -260,7 +260,7 @@ export const getNewAccessToken = async (req, res, next) => {
   }
   const accessToken = generateToken(
     { id: user._id, email: decodedToken.email },
-    process.env.ACCESS_EXPIRY_TIME
+    process.env.ACCESS_EXPIRY_TIME,
   );
   return sendResponse(res, 200, "New Access Token generated successfully", {
     accessToken,

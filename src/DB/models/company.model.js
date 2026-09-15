@@ -1,5 +1,4 @@
 import { model, Schema, Types } from "mongoose";
-import { JobModel } from "./job.model.js";
 
 export const companySchema = new Schema(
   {

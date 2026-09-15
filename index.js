@@ -3,72 +3,60 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import { createHandler } from "graphql-http/lib/use/express";
 import morgan from "morgan";
-import { Server } from "socket.io";
+
 import { schema } from "./src/app.graphql.js";
-import { DBConnection } from "./src/DB/db.connection.js";
 import applicationController from "./src/modules/application/application.controller.js";
 import authController from "./src/modules/auth/auth.controller.js";
 import companyController from "./src/modules/company/company.controller.js";
 import jobController from "./src/modules/job/job.controller.js";
 import userController from "./src/modules/user/user.controller.js";
-import { connectSocket } from "./src/socket/socket.connection.js";
 import "./src/utils/helpers/deleteExpiredOtps.js";
 
-const app = express();
-const port = process.env.PORT;
+export default async function app(database) {
+  const app = express();
 
-app.use(express.json());
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-});
+  app.use(express.json());
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 100,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+  });
+  database();
+  // Apply the rate limiting middleware to all requests.
+  app.use(limiter);
+  app.use(morgan("combined"));
+  app.use(cors());
 
-// Apply the rate limiting middleware to all requests.
-app.use(limiter);
-app.use(morgan("combined"));
-app.use(cors());
+  app.get("/", (req, res) => {
+    res.json({
+      message: "Hello",
+    });
+  });
+  //api to test deployment
+  app.get("/", (ـreq, res) => {
+    return res.json({ message: "success!!!" });
+  });
 
-//DB connection
-await DBConnection();
+  app.use("/graphql", createHandler({ schema }));
+  app.use("/auth", authController);
+  app.use("/company", companyController);
+  app.use("/user", userController);
+  app.use("/job", jobController);
+  app.use("/application", applicationController);
 
-//api to test deployment
-app.get("/", (req, res, next) => {
-  return res.json({ message: "success!!!" });
-});
+  //handle wrong api calls
+  app.all("*", (req, res, next) => {
+    return next(new Error("API not found!"));
+  });
 
-app.use("/graphql", createHandler({ schema }));
-app.use("/auth", authController);
-app.use("/company", companyController);
-app.use("/user", userController);
-app.use("/job", jobController);
-app.use("/application", applicationController);
+  //global error handler
+  app.use((error, req, res) => {
+    const status = error.cause || 500;
+    return res
+      .status(status)
+      .json({ status: "Error", error: error.message, stack: error.stack });
+  });
 
-//handle wrong api calls
-app.all("*", (req, res, next) => {
-  return next(new Error("API not found!"));
-});
-
-//global error handler
-app.use((error, req, res, next) => {
-  const status = error.cause || 500;
-  return res
-    .status(status)
-    .json({ status: "Error", error: error.message, stack: error.stack });
-});
-
-const server = app.listen(port, () => {
-  console.log(`Server is running on port : ${port}`);
-});
-
-//socket initialization
-
-export const io = new Server(server, {
-  cors: {
-    origin: "*", // Update this with your frontend domain for security
-  },
-});
-await connectSocket(io);
-
-export default app;
+  return app;
+}

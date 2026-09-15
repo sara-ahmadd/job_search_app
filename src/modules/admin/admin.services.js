@@ -1,6 +1,4 @@
-import { GraphQLString } from "graphql";
-import { getAllDataResponseType } from "./admin.graphql.types.js";
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 import { CompanyModel } from "../../models/company.model.js";
 import { isAuthenticatedGraphql } from "../../graphQl_middlewares/isAuthenticated.js";
 import { roles } from "../../../constants.js";
@@ -30,11 +28,12 @@ const isAdmin = async (auth) => {
     throw new Error("you are not authorized to perfom this action");
 };
 
-export const getAllDataGraphqlService = async (parent, args) => {
+export const getAllDataGraphqlService = async () => {
   const data = await Promise.all([
-    UserModel.find()
+    userRepository
+      .find()
       .select(
-        "-_id firstName lastName profilePic email coverPic gender DOB mobileNumber"
+        "-_id firstName lastName profilePic email coverPic gender DOB mobileNumber",
       )
       .lean(),
     CompanyModel.find().select("-_id").lean(),
@@ -50,26 +49,29 @@ export const getAllDataGraphqlService = async (parent, args) => {
 export const banOrUnbanUser = async (parent, args) => {
   const { userId, auth } = args;
   await isAdmin(auth);
-  const user = await UserModel.findOne({
+  const user = await userRepository.findOne({
     _id: userId,
     freezed: false,
     deletedAt: { $exists: false },
   });
   if (!user) throw new Error("user is not found");
 
-  if (currentUser._id.toString() === userId.toString())
+  if (user._id.toString() === userId.toString())
     throw new Error("you cannot ban your account");
 
   if (user.bannedAt) {
-    await UserModel.updateOne({ _id: userId }, { $unset: { bannedAt: "" } });
+    await userRepository.updateOne(
+      { _id: userId },
+      { $unset: { bannedAt: "" } },
+    );
     return {
       message: "user Unbanned successfully",
       statusCode: 200,
     };
   }
-  await UserModel.updateOne(
+  await userRepository.updateOne(
     { _id: userId },
-    { bannedAt: new Date().getTime() }
+    { bannedAt: new Date().getTime() },
   );
   return {
     message: "user banned successfully",
@@ -85,7 +87,7 @@ export const banOrUnbanCompany = async (parent, args) => {
   if (company.bannedAt) {
     await CompanyModel.updateOne(
       { _id: companyId },
-      { $unset: { bannedAt: "" } }
+      { $unset: { bannedAt: "" } },
     );
     return {
       message: "company Unbanned successfully",
@@ -94,7 +96,7 @@ export const banOrUnbanCompany = async (parent, args) => {
   }
   await CompanyModel.updateOne(
     { _id: companyId },
-    { bannedAt: new Date().getTime() }
+    { bannedAt: new Date().getTime() },
   );
   return {
     message: "company banned successfully",

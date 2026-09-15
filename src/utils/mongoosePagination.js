@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 
-mongoose.Query.prototype.paginate = async function (
+export default async function paginate(
   pageNumber = 1,
   sortedField = "createdAt",
-  sortedCount = -1
+  sortedCount = -1,
 ) {
   const limit = 4;
   const skip = (pageNumber - 1) * limit;
-
+  // pass any filter/query conditions to getQuery()
   const countQuery = this.model.countDocuments(this.getQuery());
 
   const [data, totalItems] = await Promise.all([
@@ -25,4 +25,5 @@ mongoose.Query.prototype.paginate = async function (
     totalPages,
     itemsPerPage,
   };
-};
+}
+mongoose.Query.prototype.paginate = paginate;

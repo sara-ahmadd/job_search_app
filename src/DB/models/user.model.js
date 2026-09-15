@@ -1,17 +1,8 @@
 import { model, Schema } from "mongoose";
-import {
-  genders,
-  otpTypes,
-  providers,
-  roles,
-  sendEmailEvent,
-} from "../../constants.js";
-import { isValidDOB } from "../utils/helpers/isValidDOB.js";
-import { hashText } from "../utils/hashing/hashing.js";
-import { decrypt, encryptText } from "../utils/encryption/encryption.js";
-import { myEventEmitter } from "../utils/emails/sendEmail.js";
-import { otpVerificationTemplate } from "../utils/emails/otpVerifyEmail.js";
-import { generate } from "otp-generator";
+import { genders, otpTypes, providers, roles } from "../../../constants.js";
+import { decrypt, encryptText } from "../../utils/encryption/encryption.js";
+import { hashText } from "../../utils/hashing/hashing.js";
+import { isValidDOB } from "../../utils/helpers/isValidDOB.js";
 
 export const defaultProfilePic =
   "https://res.cloudinary.com/dpiuyacez/image/upload/v1740230040/profile_pic_cfeg6a.png";
@@ -102,7 +93,11 @@ const UserSchema = new Schema(
     },
     OTP: [otpSchema],
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
 
 //create virtual field >> userName

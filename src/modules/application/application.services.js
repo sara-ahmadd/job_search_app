@@ -2,7 +2,7 @@ import { jobStatus } from "../../../constants.js";
 import { io } from "../../../index.js";
 import { JobApplication } from "../../models/application.model.js";
 import { JobModel } from "../../models/job.model.js";
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 import cloudinary from "../../utils/cloudUpload.js";
 import { acceptanceTemplate } from "../../utils/emails/applicationEmails/acceptance.js";
 import { rejectionTemplate } from "../../utils/emails/applicationEmails/rejection.js";
@@ -27,7 +27,7 @@ export const applyToJobService = async (req, res, next) => {
     file?.path,
     {
       folder: `${process.env.CLOUD_APP_FOLDER}/jobs/${job._id}/job_applications/user_${user._id}`,
-    }
+    },
   );
 
   const application = await JobApplication.create({
@@ -83,7 +83,7 @@ export const getAllApplicationsService = async (req, res, next) => {
     res,
     200,
     "applications retreived successfully",
-    formattedApps
+    formattedApps,
   );
 };
 
@@ -94,7 +94,7 @@ export const updateApplicationsService = async (req, res, next) => {
 
   const application = await JobApplication.findById(applicationId);
 
-  const candidate = await UserModel.findById(application.userId);
+  const candidate = await userRepository.findById(application.userId);
 
   const job = await JobModel.findById(application.jobId);
 
@@ -104,7 +104,7 @@ export const updateApplicationsService = async (req, res, next) => {
     !company.hrs.map(String).includes(user._id.toString())
   ) {
     return next(
-      new Error("you are not authorized to update application status")
+      new Error("you are not authorized to update application status"),
     );
   }
   application.status = status;
@@ -113,19 +113,19 @@ export const updateApplicationsService = async (req, res, next) => {
     sendEmail(
       candidate.email,
       "Application status",
-      acceptanceTemplate(candidate.firstName, job.jobTitle)
+      acceptanceTemplate(candidate.firstName, job.jobTitle),
     );
   }
   if (status === jobStatus.rejected) {
     sendEmail(
       candidate.email,
       "Application status",
-      rejectionTemplate(candidate.firstName, job.jobTitle, company.name)
+      rejectionTemplate(candidate.firstName, job.jobTitle, company.name),
     );
   }
   return sendResponse(
     res,
     200,
-    `Application status updated to ${status} successfully`
+    `Application status updated to ${status} successfully`,
   );
 };

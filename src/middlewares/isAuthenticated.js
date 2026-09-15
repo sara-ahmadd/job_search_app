@@ -1,5 +1,5 @@
 import { decode } from "jsonwebtoken";
-import { UserModel } from "../models/user.model.js";
+import { userRepository } from "../models/user.model.js";
 import { verifyToken } from "../utils/token/token.js";
 
 export const isAuthenticated = async (req, res, next) => {
@@ -8,7 +8,7 @@ export const isAuthenticated = async (req, res, next) => {
   const token = authorization.split(" ")[1];
   if (!token) return next(new Error("Token is required"));
   const data = verifyToken(token);
-  const user = await UserModel.findById(data.id);
+  const user = await userRepository.findById(data.id);
 
   if (!user) return next(new Error("User is not found"));
 

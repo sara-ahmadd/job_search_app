@@ -1,7 +1,7 @@
 import {
   defaultCoverPic,
   defaultProfilePic,
-  UserModel,
+  userRepository,
 } from "../../models/user.model.js";
 import cloudinary from "../../utils/cloudUpload.js";
 import { encryptText } from "../../utils/encryption/encryption.js";
@@ -19,7 +19,7 @@ export const updateUserDataService = async (req, res, next) => {
   //check if user exists and not banned or deleted or not confirmed
   await checkUserById(user._id, next);
 
-  const updatedUser = await UserModel.findByIdAndUpdate(
+  const updatedUser = await userRepository.findByIdAndUpdate(
     user._id,
     {
       firstName,
@@ -28,7 +28,7 @@ export const updateUserDataService = async (req, res, next) => {
       gender,
       mobileNumber: encryptText(mobileNumber),
     },
-    { new: true }
+    { new: true },
   );
 
   if (!updatedUser) {
@@ -52,12 +52,14 @@ export const viewUserProfileService = async (req, res, next) => {
   const { user } = req;
   await checkUserById(user._id, next);
   //get target user
-  const target = await UserModel.findOne({
-    _id: userId,
-    freezed: false,
-    isConfirmed: true,
-    bannedAt: { $exists: false },
-  }).select("userName mobileNumber profilePic coverPic firstName lastName");
+  const target = await userRepository
+    .findOne({
+      _id: userId,
+      freezed: false,
+      isConfirmed: true,
+      bannedAt: { $exists: false },
+    })
+    .select("userName mobileNumber profilePic coverPic firstName lastName");
   if (!target)
     return next(new Error("target user is not found", { cause: 404 }));
   return sendResponse(res, 200, "user profile viewed successfully", {
@@ -79,7 +81,7 @@ export const updatePasswordService = async (req, res, next) => {
     return next(
       new Error("You arenot authorized to update password of this profile", {
         cause: 400,
-      })
+      }),
     );
 
   const checkUser = await checkUserByEmail(email, next);
@@ -110,7 +112,7 @@ export const addUserProfilePicService = async (req, res, next) => {
     file.path,
     {
       folder: `/${process.env.CLOUD_APP_FOLDER}/users/${user._id}/profilePic`,
-    }
+    },
   );
   checkUser.profilePic = { secure_url, public_id };
   await checkUser.save();
@@ -130,7 +132,7 @@ export const addUserCoverPicService = async (req, res, next) => {
     file.path,
     {
       folder: `/${process.env.CLOUD_APP_FOLDER}/users/${user._id}/coverPic`,
-    }
+    },
   );
   checkUser.coverPic = { secure_url, public_id };
   await checkUser.save();

@@ -1,15 +1,15 @@
 import { default as joi, default as Joi } from "joi";
 import { fileObject } from "../../../constants.js";
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 import { validateObjectId } from "../../utils/helpers/isValidMongoObjectId.js";
 
 const checkCompanyName = async (value) => {
-  const user = await UserModel.findOne({ name: value });
+  const user = await userRepository.findOne({ name: value });
   if (user) throw new Joi.ValidationError("this name already exists");
 };
 
 const checkCompanyEmail = async (value) => {
-  const user = await UserModel.findOne({ email: value });
+  const user = await userRepository.findOne({ email: value });
   if (user) throw new Joi.ValidationError("this email already exists");
 };
 

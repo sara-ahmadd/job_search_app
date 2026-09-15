@@ -1,9 +1,8 @@
-import { CompanyModel } from "../../models/company.model.js";
-import { UserModel } from "../../models/user.model.js";
-import { checkCompanyById } from "./checkCompany.js";
+import { CompanyModel } from "../../DB/models/company.model.js";
+import { userRepository } from "../../DB/models/user.model.js";
 
 export const isHr = async (companyId, socket) => {
-  const user = await UserModel.findById(socket.userId);
+  const user = await userRepository.findById(socket.userId);
   const company = await CompanyModel.findById(companyId);
   if (!company) {
     socket.emit("error", "company not found");

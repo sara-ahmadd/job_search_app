@@ -1,5 +1,9 @@
 import { model, Schema, Types } from "mongoose";
-import { jobLocations, seniorityLevel, workingTime } from "../../constants.js";
+import {
+  jobLocations,
+  seniorityLevel,
+  workingTime,
+} from "../../../constants.js";
 
 export const JobSchema = new Schema(
   {
@@ -34,7 +38,11 @@ export const JobSchema = new Schema(
     closed: { type: Boolean, default: false },
     companyId: { type: Types.ObjectId, ref: "Company" },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
 
 JobSchema.virtual("applications", {

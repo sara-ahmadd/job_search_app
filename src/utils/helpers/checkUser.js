@@ -1,4 +1,4 @@
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 
 /**
  * Check if user already exists using user's email, return user if exists or throw error if not exists
@@ -7,7 +7,7 @@ import { UserModel } from "../../models/user.model.js";
  * @returns
  */
 export const checkUserByEmail = async (email, next) => {
-  const user = await UserModel.findOne({
+  const user = await userRepository.findOne({
     email,
     freezed: false,
     deletedAt: { $exists: false },
@@ -29,11 +29,13 @@ export const checkUserByEmail = async (email, next) => {
  * @returns
  */
 export const checkUserById = async (id, next, selectedFields) => {
-  const user = await UserModel.findOne({
-    _id: id,
-    freezed: false,
-    deletedAt: { $exists: false },
-  }).select(`${selectedFields || ""}`);
+  const user = await userRepository
+    .findOne({
+      _id: id,
+      freezed: false,
+      deletedAt: { $exists: false },
+    })
+    .select(`${selectedFields || ""}`);
 
   if (!user) return false;
   if (user.bannedAt) return next(new Error("user is banned", { cause: 400 }));

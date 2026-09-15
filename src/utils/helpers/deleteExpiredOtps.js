@@ -1,4 +1,4 @@
-import { UserModel } from "../../models/user.model.js";
+import { userRepository } from "../../models/user.model.js";
 
 /**
  * Delete expired otps every 6 hours
@@ -8,15 +8,15 @@ const deleteExpiredOtps = async () => {
   try {
     const currentTime = new Date();
 
-    const result = await UserModel.updateMany(
+    const result = await userRepository.updateMany(
       {
         "OTP.expiresIn": { $lt: currentTime },
       },
-      { $pull: { OTP: { expiresIn: { $lt: currentTime } } } }
+      { $pull: { OTP: { expiresIn: { $lt: currentTime } } } },
     );
     return result;
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error.message, { cause: error });
   }
 };
 
@@ -26,6 +26,9 @@ const deleteExpiredOtps = async () => {
 })();
 
 //run the function every 6 hours
-setInterval(async () => {
-  await deleteExpiredOtps();
-}, 6 * 60 * 60 * 1000);
+setInterval(
+  async () => {
+    await deleteExpiredOtps();
+  },
+  6 * 60 * 60 * 1000,
+);

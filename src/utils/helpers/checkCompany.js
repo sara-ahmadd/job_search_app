@@ -1,4 +1,4 @@
-import { companyRepository } from "../../models/company.model.js";
+import { companyRepository } from "../../DB/repositories/index.js";
 
 /**
  * check if company with this id is found and approved by admin

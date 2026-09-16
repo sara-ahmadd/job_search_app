@@ -1,7 +1,7 @@
-import { companyRepository } from "../../models/company.model.js";
+import { companyRepository } from "../../DB/repositories/index.js";
 import { jest } from "@jest/globals";
 
-import "../../utils/mongoosePagination.js";
+// import "../../utils/mongoosePagination.js";
 import paginate from "../../utils/mongoosePagination.js";
 
 describe("test paginate function added to mongoose query prototype", () => {

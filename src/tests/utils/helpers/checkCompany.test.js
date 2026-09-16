@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { companyRepository } from "../../../models/company.model.js";
+import { companyRepository } from "../../../DB/repositories/index.js";
 import { checkCompanyById } from "../../../utils/helpers/checkCompany.js";
 
 describe("check if company with this id is already approved by admin", () => {

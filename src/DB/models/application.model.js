@@ -1,5 +1,5 @@
 import { model, Schema, Types } from "mongoose";
-import { jobStatus } from "../../constants.js";
+import { jobStatus } from "../../../constants.js";
 
 const jobApplicationSchema = new Schema(
   {
@@ -29,7 +29,7 @@ const jobApplicationSchema = new Schema(
       default: jobStatus.pending,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const JobApplication = model("Application", jobApplicationSchema);

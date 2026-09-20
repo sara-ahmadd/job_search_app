@@ -1,10 +1,10 @@
-import { userRepository } from "../../models/user.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
 
 /**
  * Delete expired otps every 6 hours
  * @returns {Promise<any>} Count of deleted otps which are expired
  */
-const deleteExpiredOtps = async () => {
+export const deleteExpiredOtps = async () => {
   try {
     const currentTime = new Date();
 
@@ -14,21 +14,9 @@ const deleteExpiredOtps = async () => {
       },
       { $pull: { OTP: { expiresIn: { $lt: currentTime } } } },
     );
+
     return result;
   } catch (error) {
     throw new Error(error.message, { cause: error });
   }
 };
-
-//run the function once the app is initiated
-(async () => {
-  await deleteExpiredOtps();
-})();
-
-//run the function every 6 hours
-setInterval(
-  async () => {
-    await deleteExpiredOtps();
-  },
-  6 * 60 * 60 * 1000,
-);

@@ -1,4 +1,4 @@
-import { userRepository } from "../../models/user.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
 
 /**
  * Check if user already exists using user's email, return user if exists or throw error if not exists

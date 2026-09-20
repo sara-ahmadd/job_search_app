@@ -1,6 +1,6 @@
 import { generate } from "otp-generator";
 import { otpTypes, providers, sendEmailEvent } from "../../../constants.js";
-import { userRepository } from "../../models/user.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
 import { compareHashedText, hashText } from "../../utils/hashing/hashing.js";
 import { checkUserByEmail } from "../../utils/helpers/checkUser.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
@@ -16,7 +16,16 @@ import jwt from "jsonwebtoken";
  * @param {String} emailSubject
  * @returns
  */
-const sendConfirmOtp = (email, otpType, emailSubject) => {
+export const sendConfirmOtp = (email, otpType, emailSubject) => {
+  if (!email) {
+    throw new Error("Email is undefined");
+  }
+  if (!otpType) {
+    throw new Error("otpType is undefined");
+  }
+  if (!emailSubject) {
+    throw new Error("EmailSubject is undefined");
+  }
   //create otp for email confirmation
   // Generate OTP of length 5-15
   const otpLength = Math.floor(Math.random() * 10) + 5;
@@ -150,8 +159,7 @@ export const loginWithGmailService = async (req, res, next) => {
   });
   const userData = ticket.getPayload();
 
-  const { email_verified, email, name, picture, family_name, given_name } =
-    userData;
+  const { email_verified, email, picture, family_name, given_name } = userData;
   if (!email_verified) return next(new Error("invalid email"));
 
   const user = await userRepository.findOne({
@@ -197,7 +205,7 @@ export const loginWithGmailService = async (req, res, next) => {
   });
 };
 
-export const forgotPasswordService = async (req, res, next) => {
+export const forgotPasswordService = async (req, res) => {
   const { email } = req.body;
   //this function handles case of notFound user
   const user = await checkUserByEmail(email);

@@ -1,8 +1,8 @@
 import { jobStatus } from "../../../constants.js";
-import { io } from "../../../index.js";
-import { applicationRepository } from "../../models/application.model.js";
-import { jobRepository } from "../../models/job.model.js";
-import { userRepository } from "../../models/user.model.js";
+// import { io } from "../../../server.js";
+import { applicationRepository } from "../../DB/repositories/index.js";
+import { jobRepository } from "../../DB/repositories/index.js";
+import { userRepository } from "../../DB/repositories/index.js";
 import cloudinary from "../../utils/cloudUpload.js";
 import { acceptanceTemplate } from "../../utils/emails/applicationEmails/acceptance.js";
 import { rejectionTemplate } from "../../utils/emails/applicationEmails/rejection.js";
@@ -10,6 +10,8 @@ import { sendEmail } from "../../utils/emails/sendEmail.js";
 import { decrypt } from "../../utils/encryption/encryption.js";
 import { checkCompanyById } from "../../utils/helpers/checkCompany.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
+
+import { io } from "../../socket/socket.instance.js";
 
 export const applyToJobService = async (req, res, next) => {
   const { user, body, file } = req;
@@ -92,8 +94,8 @@ export const updateApplicationsService = async (req, res, next) => {
   const { user } = req;
   const { applicationId } = req.params;
   const { status } = req.query;
-  applicationRepository;
-  const application = await JobApplication.findById(applicationId);
+
+  const application = await applicationRepository.findById(applicationId);
 
   const candidate = await userRepository.findById(application.userId);
 

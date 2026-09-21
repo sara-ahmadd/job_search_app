@@ -54,17 +54,30 @@ export const sendConfirmOtp = (email, otpType, emailSubject) => {
 };
 
 export const registerService = async (req, res, next) => {
+  console.log("1 - registerService started");
+
   const { email, password, firstName, lastName, DOB, mobileNumber, gender } =
     req.body;
-  //check if email already exists
+
+  console.log("2 - body received");
+
   const user = await userRepository.findOne({ email });
-  if (user) return next(new Error("this email already exists"));
+
+  console.log("3 - findOne finished:", user);
+
+  if (user) {
+    console.log("4 - user already exists");
+    return next(new Error("this email already exists"));
+  }
 
   const otpObject = sendConfirmOtp(
     email,
     otpTypes.confirmEmail,
     "Account Verification Email",
   );
+
+  console.log("5 - sendConfirmOtp finished:", otpObject);
+
   const newUser = await userRepository.create({
     email,
     password,
@@ -76,7 +89,16 @@ export const registerService = async (req, res, next) => {
     OTP: [otpObject],
   });
 
-  return sendResponse(res, 201, "User registered successfully", newUser);
+  console.log("6 - user created:", newUser);
+
+  const result = sendResponse(
+    res,
+    201,
+    "User registered successfully",
+    newUser,
+  );
+
+  console.log("7 - sendResponse finished:", result);
 };
 
 export const confirmOtpService = async (req, res, next) => {

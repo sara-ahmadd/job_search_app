@@ -1,4 +1,4 @@
-import { userRepository } from "../models/user.model.js";
+import { userRepository } from "../DB/repositories/index.js";
 import { verifyToken } from "../utils/token/token.js";
 
 export const isAuthenticatedGraphql = async (auth) => {

@@ -1,5 +1,5 @@
-import { userRepository } from "../../models/user.model.js";
-import { companyRepository } from "../../models/company.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
+import { companyRepository } from "../../DB/repositories/index.js";
 import { isAuthenticatedGraphql } from "../../graphQl_middlewares/isAuthenticated.js";
 import { roles } from "../../../constants.js";
 

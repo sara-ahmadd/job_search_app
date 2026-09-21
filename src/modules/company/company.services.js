@@ -1,5 +1,5 @@
 import { roles } from "../../../constants.js";
-import { companyRepository } from "../../models/company.model.js";
+import { companyRepository } from "../../DB/repositories/index.js";
 import { checkCompanyById } from "../../utils/helpers/checkCompany.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
 import cloudinary from "./../../utils/cloudUpload.js";
@@ -17,7 +17,7 @@ const isOwner = async (userId, companyId, next) => {
   return true;
 };
 
-export const addNewCompanyService = async (req, res, next) => {
+export const addNewCompanyService = async (req, res) => {
   const { body, file, user } = req;
   const { name, companyEmail, description, industry, employeesCount, address } =
     body;

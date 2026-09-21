@@ -4,6 +4,7 @@ export const asyncHandler = (func) => {
       if (Object.keys(error).length === 0) {
         return next(new Error(error.message));
       }
+      console.error(error);
       return next(error);
     });
   };

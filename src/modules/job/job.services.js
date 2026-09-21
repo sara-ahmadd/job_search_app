@@ -1,5 +1,5 @@
-import { companyRepository } from "../../models/company.model.js";
-import { jobRepository } from "../../models/job.model.js";
+import { companyRepository } from "../../DB/repositories/index.js";
+import { jobRepository } from "../../DB/repositories/index.js";
 import { checkUserById } from "../../utils/helpers/checkUser.js";
 import { sendResponse } from "../../utils/helpers/globalResHandler.js";
 
@@ -25,7 +25,7 @@ const checkCompany = async (companyId, next) => {
 };
 
 export const addJobService = async (req, res, next) => {
-  const { companyId, ...reqBody } = req.body;
+  const { companyId } = req.body;
   const { user } = req;
 
   const company = await checkCompany(companyId, next);
@@ -129,7 +129,7 @@ export const getAllJobsForSingleCompanyService = async (req, res, next) => {
   return sendResponse(res, 201, "jobs retreived successfully", allJobs);
 };
 
-export const getAllJobsService = async (req, res, next) => {
+export const getAllJobsService = async (req, res) => {
   const { pageNumber, ...reqQuery } = req.query;
 
   const allJobs = await jobRepository

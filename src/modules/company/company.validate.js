@@ -1,6 +1,6 @@
 import { default as joi, default as Joi } from "joi";
 import { fileObject } from "../../../constants.js";
-import { userRepository } from "../../models/user.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
 import { validateObjectId } from "../../utils/helpers/isValidMongoObjectId.js";
 
 const checkCompanyName = async (value) => {

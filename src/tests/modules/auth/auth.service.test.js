@@ -96,6 +96,9 @@ describe("test registerService() functionality", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
   let req = { body: {} },
     res = { status: jest.fn().mockReturnThis(), json: jest.fn() },
     next = jest.fn();

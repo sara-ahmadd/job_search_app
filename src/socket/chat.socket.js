@@ -1,5 +1,5 @@
-import { chatRepository } from "../models/chat.model.js";
-import { isHr } from "../utils/helpers/checkChatStart.js";
+import { chatRepository } from "../DB/repositories/index.js";
+import { isHr } from "../utils/helpers/isHr.js";
 
 export const chatSocketService = async (socket) => {
   socket.on("start_conversation", async ({ companyId }) => {

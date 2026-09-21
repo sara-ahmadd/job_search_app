@@ -12,7 +12,7 @@ import jobController from "./src/modules/job/job.controller.js";
 import userController from "./src/modules/user/user.controller.js";
 import "./src/utils/helpers/deleteExpiredOtps.js";
 
-export default async function app(database) {
+export default async function app() {
   const app = express();
 
   app.use(express.json());
@@ -22,7 +22,7 @@ export default async function app(database) {
     standardHeaders: "draft-8",
     legacyHeaders: false,
   });
-  database();
+
   // Apply the rate limiting middleware to all requests.
   app.use(limiter);
   app.use(morgan("combined"));

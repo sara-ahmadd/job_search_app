@@ -22,52 +22,53 @@ import {
 
 const router = Router();
 
-//register
+// //register
+
 router.post(
   "/register",
   validate(registerSchema),
-  asyncHandler(registerService)
+  asyncHandler(registerService),
 );
 //confirm otp
 router.post(
   "/confirm_otp",
   validate(confirmOtpSchema),
-  asyncHandler(confirmOtpService)
+  asyncHandler(confirmOtpService),
 );
 
 //login with email & password
 router.post(
   "/login_credentials",
   validate(loginWithCredentialsSchema),
-  asyncHandler(loginWithCredentialsService)
+  asyncHandler(loginWithCredentialsService),
 );
 
 //google login & signup
 router.post(
   "/google_auth",
   validate(loginWithGmailSchema),
-  asyncHandler(loginWithGmailService)
+  asyncHandler(loginWithGmailService),
 );
 
 //handle forget password endpoint
 router.post(
   "/forgot_password",
   validate(forgotPasswordSchema),
-  asyncHandler(forgotPasswordService)
+  asyncHandler(forgotPasswordService),
 );
 
 //handle reset password endpoint
 router.post(
   "/reset_password",
   validate(resetPasswordSchema),
-  asyncHandler(resetPasswordService)
+  asyncHandler(resetPasswordService),
 );
 
 //get new access token
 router.post(
   "/refresh_token",
   validate(newTokenSchema),
-  asyncHandler(getNewAccessToken)
+  asyncHandler(getNewAccessToken),
 );
 
 export default router;

@@ -1,8 +1,8 @@
 import {
   defaultCoverPic,
   defaultProfilePic,
-  userRepository,
-} from "../../models/user.model.js";
+} from "../../DB/models/user.model.js";
+import { userRepository } from "../../DB/repositories/index.js";
 import cloudinary from "../../utils/cloudUpload.js";
 import { encryptText } from "../../utils/encryption/encryption.js";
 import { compareHashedText } from "../../utils/hashing/hashing.js";

@@ -33,8 +33,7 @@ describe("POST /register", () => {
         mobileNumber: "01211111111",
         gender: genders.female,
       });
-    console.log("STATUS:", response.status);
-    console.log("BODY:", response.body);
+
     expect(response.status).toEqual(201);
   });
 });

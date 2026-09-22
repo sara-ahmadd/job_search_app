@@ -18,15 +18,16 @@ jest.unstable_mockModule("../../../utils/emails/sendEmail", () => ({
 jest.unstable_mockModule("../../../utils/emails/otpVerifyEmail", () => ({
   otpVerificationTemplate: mockTemplate,
 }));
+const mockCompareHashedText = jest.fn();
+
+jest.unstable_mockModule("../../../utils/hashing/hashing.js", () => ({
+  compareHashedText: mockCompareHashedText,
+  hashText: mockHashText,
+}));
 
 const hashedOtp =
   "$2b$10$tWvJSJ8MsRd2BJzQj7Zry.biXjfk8ObBvo1idFBjzE2tijf7yKsTK";
 const mockHashText = jest.fn().mockReturnValue(hashedOtp);
-
-jest.unstable_mockModule("../../../utils/hashing/hashing.js", () => ({
-  hashText: mockHashText,
-  compareHashedText: jest.fn(),
-}));
 
 const { myEventEmitter } = await import("../../../utils/emails/sendEmail");
 
@@ -34,6 +35,9 @@ const { otpVerificationTemplate } =
   await import("../../../utils/emails/otpVerifyEmail.js");
 
 const { sendConfirmOtp, registerService } =
+  await import("../../../modules/auth/auth.services.js");
+
+const { confirmOtpService } =
   await import("../../../modules/auth/auth.services.js");
 
 describe("test sendConfirmOtp() functionality", () => {
@@ -163,5 +167,159 @@ describe("test registerService() functionality", () => {
     expect(next).toHaveBeenCalled();
     expect(userRepository.create).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledWith(error);
+  });
+});
+
+describe("test confirmOtpService() service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCompareHashedText.mockReset();
+  });
+  let req = { body: {} },
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() },
+    next = jest.fn();
+  test("should pass with correct email & otp", async () => {
+    req = { body: { email: "test@mail.com", otp: "234test" } };
+    let user = {
+      email: "test@mail.com",
+      bannedAt: null,
+      OTP: [
+        {
+          code: "234test",
+          otpType: otpTypes.confirmEmail,
+          expiresIn: Date.now() + 10 * 60 * 1000,
+        },
+      ],
+    };
+
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(user);
+    jest.spyOn(userRepository, "updateOne").mockResolvedValue(user);
+    mockCompareHashedText.mockReturnValue(true);
+
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.updateOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: user.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Email is confirmed successfully",
+      }),
+    );
+    expect(mockCompareHashedText).toHaveBeenCalled();
+  });
+  test("should fail with expired otp", async () => {
+    req = { body: { email: "test@mail.com", otp: "234test" } };
+    let user = {
+      email: "test@mail.com",
+      bannedAt: null,
+      OTP: [
+        {
+          code: "2340test",
+          otpType: otpTypes.confirmEmail,
+          expiresIn: Date.now() - 10 * 60 * 1000,
+        },
+      ],
+    };
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(user);
+
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: user.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+    expect(next).toHaveBeenCalledWith(new Error("otp is invalid"));
+  });
+
+  test("should fail with incorrect email", async () => {
+    req = { body: { email: "test-wrong@mail.com", otp: "234test" } };
+
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(null);
+
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: req.body.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+
+    expect(next).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(
+      new Error("user is not found", { cause: 404 }),
+    );
+  });
+  test("should fail with incorrect otp", async () => {
+    req = { body: { email: "test@mail.com", otp: "234test" } };
+    let user = {
+      email: "test@mail.com",
+      OTP: [{ code: "123check", otpType: otpTypes.confirmEmail }],
+    };
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(user);
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: user.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+
+    expect(next).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(new Error("otp is invalid"));
+  });
+  test("should fail with incorrect type of otp", async () => {
+    req = { body: { email: "test@mail.com", otp: "234test" } };
+    let user = {
+      email: "test@mail.com",
+      OTP: [{ code: "234test", otpType: otpTypes.forgetPassword }],
+    };
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(user);
+
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: user.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+
+    expect(next).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(
+      new Error("no email conform otp is found", { cause: 400 }),
+    );
+  });
+  test("should fail with user is banned", async () => {
+    req = { body: { email: "test@mail.com", otp: "234test" } };
+    let user = {
+      email: "test@mail.com",
+      bannedAt: new Date("2026-09-11"),
+    };
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(user);
+
+    await confirmOtpService(req, res, next);
+
+    expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: user.email,
+      freezed: false,
+      deletedAt: { $exists: false },
+    });
+
+    expect(next).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(
+      new Error("user is banned", { cause: 404 }),
+    );
   });
 });

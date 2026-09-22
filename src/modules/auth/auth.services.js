@@ -54,16 +54,10 @@ export const sendConfirmOtp = (email, otpType, emailSubject) => {
 };
 
 export const registerService = async (req, res, next) => {
-  console.log("1 - registerService started");
-
   const { email, password, firstName, lastName, DOB, mobileNumber, gender } =
     req.body;
 
-  console.log("2 - body received");
-
   const user = await userRepository.findOne({ email });
-
-  console.log("3 - findOne finished:", user);
 
   if (user) {
     console.log("4 - user already exists");
@@ -89,16 +83,7 @@ export const registerService = async (req, res, next) => {
     OTP: [otpObject],
   });
 
-  console.log("6 - user created:", newUser);
-
-  const result = sendResponse(
-    res,
-    201,
-    "User registered successfully",
-    newUser,
-  );
-
-  console.log("7 - sendResponse finished:", result);
+  sendResponse(res, 201, "User registered successfully", newUser);
 };
 
 export const confirmOtpService = async (req, res, next) => {
@@ -134,7 +119,8 @@ export const confirmOtpService = async (req, res, next) => {
       }
     }
   }
-
+  if (user.OTP.every((otp) => otp.otpType !== otpTypes.confirmEmail))
+    return next(new Error("no email conform otp is found", { cause: 400 }));
   return sendResponse(res, 200, "Email is confirmed successfully");
 };
 

@@ -41,6 +41,7 @@ export const sendConfirmOtp = (email, otpType, emailSubject) => {
     emailSubject,
     otpVerificationTemplate(otp),
   );
+  console.log({ real_otp: otp });
   //hash otp
   const hashedOtp = hashText(otp);
   //otp expiration time
@@ -109,6 +110,7 @@ export const confirmOtpService = async (req, res, next) => {
         plainText: otp,
         hashedValue: item.code,
       });
+      console.log({ compareOtp });
       const currentTime = new Date().getTime();
       if (!compareOtp || new Date(item.expiresIn).getTime() < currentTime) {
         return next(new Error("otp is invalid"));

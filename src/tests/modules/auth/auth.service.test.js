@@ -19,6 +19,7 @@ jest.unstable_mockModule("../../../utils/emails/otpVerifyEmail", () => ({
   otpVerificationTemplate: mockTemplate,
 }));
 const mockCompareHashedText = jest.fn();
+const mockHashText = jest.fn();
 
 jest.unstable_mockModule("../../../utils/hashing/hashing.js", () => ({
   compareHashedText: mockCompareHashedText,
@@ -27,17 +28,25 @@ jest.unstable_mockModule("../../../utils/hashing/hashing.js", () => ({
 
 const hashedOtp =
   "$2b$10$tWvJSJ8MsRd2BJzQj7Zry.biXjfk8ObBvo1idFBjzE2tijf7yKsTK";
-const mockHashText = jest.fn().mockReturnValue(hashedOtp);
 
 const { myEventEmitter } = await import("../../../utils/emails/sendEmail");
 
 const { otpVerificationTemplate } =
   await import("../../../utils/emails/otpVerifyEmail.js");
 
+const mockGenerateToken = jest.fn();
+
+jest.unstable_mockModule("../../../utils/token/token.js", () => ({
+  generateToken: mockGenerateToken,
+}));
+const mockcheckUserByEmail = jest.fn();
+jest.unstable_mockModule("../../../utils/helpers/checkUser.js", () => ({
+  checkUserByEmail: mockcheckUserByEmail,
+}));
 const { sendConfirmOtp, registerService } =
   await import("../../../modules/auth/auth.services.js");
 
-const { confirmOtpService } =
+const { confirmOtpService, loginWithCredentialsService } =
   await import("../../../modules/auth/auth.services.js");
 
 describe("test sendConfirmOtp() functionality", () => {
@@ -48,7 +57,7 @@ describe("test sendConfirmOtp() functionality", () => {
     const email = "test@mail.com",
       otpType = otpTypes.confirmEmail,
       emailSubject = "Hello, test";
-
+    mockHashText.mockReturnValue(hashedOtp);
     let result = sendConfirmOtp(email, otpType, emailSubject);
 
     expect(mockGenerate).toHaveBeenCalledTimes(1);
@@ -180,6 +189,7 @@ describe("test confirmOtpService() service", () => {
     next = jest.fn();
   test("should pass with correct email & otp", async () => {
     req = { body: { email: "test@mail.com", otp: "234test" } };
+    mockHashText.mockReturnValue(hashedOtp);
     let user = {
       email: "test@mail.com",
       bannedAt: null,
@@ -320,6 +330,86 @@ describe("test confirmOtpService() service", () => {
     expect(next).toHaveBeenCalled();
     expect(next).toHaveBeenCalledWith(
       new Error("user is banned", { cause: 404 }),
+    );
+  });
+});
+
+describe("test loginWithCredentialsService() service", () => {
+  let req = { body: { password: "123-password", email: "sara@mail.com" } },
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() },
+    next = jest.fn();
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  test("should pass if user exists with same credintials", async () => {
+    const userLogin = {
+      email: "sara@mail.com",
+      password: "123-password",
+      freezed: false,
+      isConfirmed: true,
+      _id: "123",
+      bannedAt: undefined,
+    };
+    mockcheckUserByEmail.mockReturnValue(userLogin);
+
+    mockCompareHashedText.mockReturnValue(true);
+    await loginWithCredentialsService(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(mockGenerateToken).toHaveBeenCalled();
+    expect(mockGenerateToken).toHaveBeenNthCalledWith(
+      1,
+      { id: userLogin._id, email: userLogin.email },
+      process.env.ACCESS_EXPIRY_TIME,
+    );
+    expect(mockGenerateToken).toHaveBeenNthCalledWith(
+      2,
+      { id: userLogin._id, email: userLogin.email },
+      process.env.REFRESH_EXPIRY_TIME,
+    );
+    expect(mockGenerateToken).toHaveBeenCalledTimes(2);
+  });
+  test("should fail if user is not confirmed", async () => {
+    const userLogin = {
+      email: "sara@mail.com",
+      password: "123-password",
+      freezed: false,
+      isConfirmed: false,
+      bannedAt: undefined,
+    };
+    mockcheckUserByEmail.mockReturnValue(userLogin);
+    await loginWithCredentialsService(req, res, next);
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "user is inactive" }),
+    );
+  });
+  test("should fail if user is freezed", async () => {
+    const userLogin = {
+      email: "sara@mail.com",
+      password: "123-password",
+      freezed: true,
+      isConfirmed: true,
+      bannedAt: undefined,
+    };
+    mockcheckUserByEmail.mockResolvedValue(userLogin);
+    await loginWithCredentialsService(req, res, next);
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "user is inactive" }),
+    );
+  });
+  test("should fail if passwords mismatch", async () => {
+    const userLogin = {
+      email: "sara@mail.com",
+      password: "123-password-123",
+      freezed: false,
+      isConfirmed: true,
+      bannedAt: undefined,
+    };
+    mockcheckUserByEmail.mockResolvedValue(userLogin);
+    mockCompareHashedText.mockReturnValue(false);
+
+    await loginWithCredentialsService(req, res, next);
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Credentials are invalid" }),
     );
   });
 });

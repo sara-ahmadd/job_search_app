@@ -132,7 +132,6 @@ export const loginWithCredentialsService = async (req, res, next) => {
 
   if (user?.freezed || !user?.isConfirmed)
     return next(new Error("user is inactive", { cause: 400 }));
-
   const comparePasswords = compareHashedText({
     plainText: password,
     hashedValue: user.password,

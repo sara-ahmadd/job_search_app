@@ -51,8 +51,9 @@ export default async function app() {
   });
 
   //global error handler
-  app.use((error, req, res) => {
+  app.use((error, req, res, _next) => {
     const status = error.cause || 500;
+
     return res
       .status(status)
       .json({ status: "Error", error: error.message, stack: error.stack });

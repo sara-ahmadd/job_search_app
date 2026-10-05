@@ -43,11 +43,38 @@ const mockcheckUserByEmail = jest.fn();
 jest.unstable_mockModule("../../../utils/helpers/checkUser.js", () => ({
   checkUserByEmail: mockcheckUserByEmail,
 }));
-const { sendConfirmOtp, registerService } =
-  await import("../../../modules/auth/auth.services.js");
 
-const { confirmOtpService, loginWithCredentialsService } =
-  await import("../../../modules/auth/auth.services.js");
+let u = {
+  email: "test@gmail.com",
+  firstName: "test",
+  isConfirmed: true,
+  lastName: "test",
+  picture: "",
+  profilePic: {
+    public_id: null,
+    secure_url: "",
+  },
+  email_verified: true,
+};
+
+const getPayloadMock = jest.fn();
+
+const verifyIdTokenMock = jest.fn();
+
+const OAuth2ClientMock = jest
+  .fn()
+  .mockImplementation(() => ({ verifyIdToken: verifyIdTokenMock }));
+
+jest.unstable_mockModule("google-auth-library", () => ({
+  OAuth2Client: OAuth2ClientMock,
+}));
+const {
+  sendConfirmOtp,
+  registerService,
+  confirmOtpService,
+  loginWithCredentialsService,
+  loginWithGmailService,
+} = await import("../../../modules/auth/auth.services.js");
 
 describe("test sendConfirmOtp() functionality", () => {
   beforeEach(() => {
@@ -411,5 +438,69 @@ describe("test loginWithCredentialsService() service", () => {
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({ message: "Credentials are invalid" }),
     );
+  });
+});
+describe("test loginWithGmailService() service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  let req = { body: { idToken: "" } };
+  let res = { status: jest.fn().mockReturnThis(), json: jest.fn() },
+    next = jest.fn();
+  test("should pass with all params correct", async () => {
+    const clientId = process.env.CLIENT_ID;
+
+    getPayloadMock.mockReturnValue(u);
+
+    verifyIdTokenMock.mockResolvedValue({
+      getPayload: getPayloadMock,
+    });
+    jest.spyOn(userRepository, "findOne").mockResolvedValue(null);
+    jest
+      .spyOn(userRepository, "create")
+      .mockResolvedValue({ ...u, _id: "123" });
+
+    await loginWithGmailService(req, res, next);
+    expect(OAuth2ClientMock).toHaveBeenCalledWith(clientId);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      email: u.email,
+      isConfirmed: true,
+    });
+    expect(userRepository.create).toHaveBeenCalled();
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(next).not.toHaveBeenCalledWith();
+  });
+
+  test("should fail if user email isnot verified", async () => {
+    verifyIdTokenMock.mockResolvedValue({
+      getPayload: getPayloadMock,
+    });
+
+    getPayloadMock.mockReturnValue({ ...u, email_verified: false });
+
+    await loginWithGmailService(req, res, next);
+    expect(userRepository.findOne).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "invalid email" }),
+    );
+  });
+  test("should fail if google token is invalid", async () => {
+    const error = new Error("Invalid Google token");
+
+    verifyIdTokenMock.mockRejectedValue(error);
+
+    await loginWithGmailService(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(error);
+  });
+  test("should fail if google payload is missing", async () => {
+    getPayloadMock.mockReturnValue(undefined);
+
+    verifyIdTokenMock.mockResolvedValue({
+      getPayload: getPayloadMock,
+    });
+
+    await expect(loginWithGmailService(req, res, next)).rejects.toThrow();
   });
 });

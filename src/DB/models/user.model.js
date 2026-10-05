@@ -133,7 +133,7 @@ UserSchema.pre("save", function (next) {
 });
 
 UserSchema.post("findOne", function (doc, next) {
-  if (doc) {
+  if (doc?.mobileNumber) {
     doc.mobileNumber = decrypt({ cypherText: doc.mobileNumber });
   }
   next();

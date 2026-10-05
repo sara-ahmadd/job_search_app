@@ -159,25 +159,34 @@ export const loginWithGmailService = async (req, res, next) => {
   const { idToken } = req.body;
 
   const clientId = process.env.CLIENT_ID;
-
+  console.log({ clientId });
   const client = new OAuth2Client(clientId);
 
-  const ticket = await client.verifyIdToken({
-    idToken,
-    audience: clientId,
-  });
-  const userData = ticket.getPayload();
+  let ticket;
 
+  try {
+    ticket = await client.verifyIdToken({
+      idToken,
+      audience: clientId,
+    });
+  } catch (error) {
+    return next(
+      new Error("Invalid Google token", 401, {
+        cause: error,
+      }),
+    );
+  }
+
+  const userData = ticket.getPayload();
   const { email_verified, email, picture, family_name, given_name } = userData;
   if (!email_verified) return next(new Error("invalid email"));
 
   const user = await userRepository.findOne({
     email,
-    firstName: given_name,
-    lastName: family_name,
-    profilePic: { secure_url: picture, public_id: null },
     isConfirmed: true,
   });
+  console.log("after getting user");
+
   if (user) {
     const accessToken = generateToken(
       { id: user._id, email },
@@ -200,6 +209,7 @@ export const loginWithGmailService = async (req, res, next) => {
     isConfirmed: true,
     provider: providers.google,
   });
+
   const accessToken = generateToken(
     { id: newUser._id, email },
     process.env.ACCESS_EXPIRY_TIME,

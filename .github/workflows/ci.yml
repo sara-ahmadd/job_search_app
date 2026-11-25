@@ -36,8 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint]
     env:
-      TEST_DB_URI: ${{ secrets.TEST_DB_URI }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      ENV_FILE: ${{ secrets.ENV_FILE }}
 
     steps:
       - name: Checkout Code

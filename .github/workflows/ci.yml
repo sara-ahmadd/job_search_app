@@ -37,7 +37,7 @@ jobs:
     needs: [lint]
     env:
       TEST_DB_URI: ${{ secrets.TEST_DB_URI }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
 
     steps:
       - name: Checkout Code

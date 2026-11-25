@@ -3,7 +3,6 @@ import { isHr } from "../utils/helpers/isHr.js";
 
 export const chatSocketService = async (socket) => {
   socket.on("start_conversation", async ({ companyId }) => {
-    console.log("🚀 Received start_conversation for company:", companyId);
     await isHr(companyId, socket);
   });
 
@@ -19,19 +18,18 @@ export const chatSocketService = async (socket) => {
     if (!chat) {
       await isHr(companyId, socket);
       // If chat doesn't exist, create a new one
-      chat = await chatRepository.create({
+      await chatRepository.create({
         senderId: socket.userId,
         receiverId: to,
         messages: [{ senderId: socket.userId, message }],
       });
     } else {
-      chat = await chatRepository.findOneAndUpdate(
+      await chatRepository.findOneAndUpdate(
         { _id: chat._id },
         { $push: { messages: { senderId: socket.userId, message } } },
         { new: true }, // return updated document
       );
     }
-    console.log(chat);
     socket.emit("sendMessage", { from: socket.userName, message });
   });
 

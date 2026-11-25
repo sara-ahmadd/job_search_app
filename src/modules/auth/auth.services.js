@@ -41,7 +41,6 @@ export const sendConfirmOtp = (email, otpType, emailSubject) => {
     emailSubject,
     otpVerificationTemplate(otp),
   );
-  console.log({ real_otp: otp });
   //hash otp
   const hashedOtp = hashText(otp);
   //otp expiration time
@@ -70,8 +69,6 @@ export const registerService = async (req, res, next) => {
     otpTypes.confirmEmail,
     "Account Verification Email",
   );
-
-  console.log("5 - sendConfirmOtp finished:", otpObject);
 
   const newUser = await userRepository.create({
     email,
@@ -110,7 +107,6 @@ export const confirmOtpService = async (req, res, next) => {
         plainText: otp,
         hashedValue: item.code,
       });
-      console.log({ compareOtp });
       const currentTime = new Date().getTime();
       if (!compareOtp || new Date(item.expiresIn).getTime() < currentTime) {
         return next(new Error("otp is invalid"));
@@ -159,7 +155,6 @@ export const loginWithGmailService = async (req, res, next) => {
   const { idToken } = req.body;
 
   const clientId = process.env.CLIENT_ID;
-  console.log({ clientId });
   const client = new OAuth2Client(clientId);
 
   let ticket;
@@ -185,8 +180,6 @@ export const loginWithGmailService = async (req, res, next) => {
     email,
     isConfirmed: true,
   });
-  console.log("after getting user");
-
   if (user) {
     const accessToken = generateToken(
       { id: user._id, email },

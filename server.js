@@ -1,7 +1,7 @@
-import makeApp from "./index";
+import makeApp from "./index.js";
 import { Server } from "socket.io";
-import { connectSocket } from "./src/socket/socket.connection";
-import { DBConnection } from "./src/DB/db.connection";
+import { connectSocket } from "./src/socket/socket.connection.js";
+import { DBConnection } from "./src/DB/db.connection.js";
 import { setIO } from "./src/socket/socket.instance.js";
 
 const port = process.env.PORT;

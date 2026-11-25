@@ -1,0 +1,21 @@
+# name
+name: CD
+# events
+on:
+  workflow_run:
+    workflows: ["ci workflow"]
+    types:
+      - completed
+    branches:
+      - main
+# jobs
+jobs:
+  render_deploy:
+    name: trigger deploy on render
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: render webhook
+      - run: curl "$RENDER_DEPLOY_WEBHOOK"
+      - env:
+        RENDER_DEPLOY_WEBHOOK: ${{secrets.RENDER_DEPLOY_WEBHOOK}}

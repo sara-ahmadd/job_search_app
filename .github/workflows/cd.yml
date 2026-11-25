@@ -13,7 +13,7 @@ jobs:
   render_deploy:
     name: trigger deploy on render
     runs-on: ubuntu-latest
-
+    if: ${{github.event.workflow_run.conclusion == 'success'}}
     steps:
       - name: render webhook
       - run: curl "$RENDER_DEPLOY_WEBHOOK"

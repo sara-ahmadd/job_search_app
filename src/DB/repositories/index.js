@@ -1,8 +1,8 @@
-import { JobApplication } from "../models/application.model";
-import { ChatModel } from "../models/chat.model";
-import { CompanyModel } from "../models/company.model";
-import { JobModel } from "../models/job.model";
-import { UserModel } from "../models/user.model";
+import { JobApplication } from "../models/application.model.js";
+import { ChatModel } from "../models/chat.model.js";
+import { CompanyModel } from "../models/company.model.js";
+import { JobModel } from "../models/job.model.js";
+import { UserModel } from "../models/user.model.js";
 
 export class DBRepository {
   constructor(model) {

@@ -224,17 +224,19 @@ export const loginWithGmailService = async (req, res, next) => {
   });
 };
 
-export const forgotPasswordService = async (req, res) => {
+export const forgotPasswordService = async (req, res, next) => {
   const { email } = req.body;
   //this function handles case of notFound user
-  const user = await checkUserByEmail(email);
+  const user = await checkUserByEmail(email, next);
+  if (!user) {
+    return next(new Error("user is not found", { cause: 404 }));
+  }
 
   const otpObject = sendConfirmOtp(
     email,
     otpTypes.forgetPassword,
     "Reset Password Email",
   );
-
   await userRepository.findByIdAndUpdate(user._id, {
     OTP: [otpObject],
   });

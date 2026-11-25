@@ -1,0 +1,52 @@
+#name
+name: ci workflow
+
+#events
+on:
+  push:
+    branches:
+      - main
+  pull-request:
+    branches:
+      - main
+      - dev
+
+#jobs
+jobs:
+  lint:
+    name: Run Linting
+    runs-on: ubunbtu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Lint Script
+        run: npm run lint
+  test:
+    name: Run Testing
+    runs-on: ubunbtu-latest
+    needs: [lint]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Test Script
+        run: npm run test

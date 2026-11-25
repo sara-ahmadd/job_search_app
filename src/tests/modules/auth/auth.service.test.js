@@ -2,6 +2,7 @@ import { jest } from "@jest/globals";
 import { genders, otpTypes, sendEmailEvent } from "../../../../constants";
 
 import { userRepository } from "../../../DB/repositories/index.js";
+import { asyncHandler } from "../../../utils/asyncHandler.js";
 
 const mockTemplate = jest.fn().mockReturnValue("HTML Text returned");
 const mockGenerate = jest.fn().mockReturnValue("2ejfi");
@@ -74,6 +75,7 @@ const {
   confirmOtpService,
   loginWithCredentialsService,
   loginWithGmailService,
+  forgotPasswordService,
 } = await import("../../../modules/auth/auth.services.js");
 
 describe("test sendConfirmOtp() functionality", () => {
@@ -502,5 +504,39 @@ describe("test loginWithGmailService() service", () => {
     });
 
     await expect(loginWithGmailService(req, res, next)).rejects.toThrow();
+  });
+});
+
+describe("test forgotPasswordService()", () => {
+  let req = { body: {} },
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() },
+    next = jest.fn();
+  test("should pass with correct body", async () => {
+    req = { body: { email: "test@gmail.com" } };
+    let sendConfirmOtpmock = jest.fn();
+    jest.unstable_mockModule("../../../modules/auth/auth.services.js", () => ({
+      sendConfirmOtp: sendConfirmOtpmock,
+    }));
+    jest.spyOn(userRepository, "findByIdAndUpdate").mockResolvedValue();
+
+    await forgotPasswordService(req, res, next);
+    expect(userRepository.findByIdAndUpdate).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "OTP is sent to your email, use it to be able reset your password",
+      }),
+    );
+  });
+  test("should fail with incorrect email", async () => {
+    req = { body: { email: "test_1@gmail.com" } };
+
+    mockcheckUserByEmail.mockReturnValue(null);
+
+    asyncHandler(await forgotPasswordService(req, res, next));
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "user is not found" }),
+    );
   });
 });

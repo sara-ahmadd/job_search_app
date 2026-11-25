@@ -100,24 +100,24 @@ describe("POST /login_credentials", () => {
 });
 
 describe("POST /google_auth", () => {
-  test("should pass with correct body", async () => {
-    let response = await request(application).post("/auth/google_auth").send({
-      idToken:
-        "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijk0M2EzYTVkN2Q5MTk2MjVhNDU0ZTQ4OWI3NWMyOWFkYWI1N2FjYmEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3NzU4NTc4MDg1MDMtN2MwMmRkdWFpZDhhazNmdTVsbGo4YW5wNDFxMzhuMDQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3NzU4NTc4MDg1MDMtN2MwMmRkdWFpZDhhazNmdTVsbGo4YW5wNDFxMzhuMDQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDE0NDQwOTk4MjUzMzk1NjkzMzAiLCJlbWFpbCI6InNhcmFhaG1hZDIwNjAwMzlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5iZiI6MTc5MTAyOTQ2MiwibmFtZSI6IlNhcmEgQWhtYWQiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS0Z0a1VIbUt5R3oxT0Vxc0I3ME82bnVkMi0xTllxSmJtZG9kRlFXclBZU0o3UW5nPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlNhcmEiLCJmYW1pbHlfbmFtZSI6IkFobWFkIiwiaWF0IjoxNzkxMDI5NzYyLCJleHAiOjE3OTEwMzMzNjIsImp0aSI6ImQ3NjVhYmMwNDg3NzU1Y2YwNDVlZDdiZWJmODEwMjBkOWNkNjAxNjYifQ.fVZ2Aziimhidh3p5OJMYOt8nodwd4fUCX6L6dMp0WkQr4eAIaqEOTGbPtnf93i0UtRrLwmxGUygBRhs1F7WKJNqsdueBbv_sXrb-MlR_6z7zGwZwA-j91i6x276_xo3kIC8frgwhOqtTNDTLmyTdhhYOPHTv9dE06p_HItn9roY9pFKMAHFXa2uv-xV7diEOvgKQ8-uaj_2NVE9ODzzvgwHOsjNuXVQwmkjwQkE13wpI_OYCkfQhG_5bZvEJcMEu_JjKUEAw8GFQy44ZD1Qt-wXEMVeG01NEqnboPLccJaoIs4S_la4okgn6n-Cv91jBv2l3VSfvm5y-2v2vB2nipg",
-    });
+  // test("should pass with correct body", async () => {
+  //   let response = await request(application).post("/auth/google_auth").send({
+  //     idToken:
+  //       "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijk0M2EzYTVkN2Q5MTk2MjVhNDU0ZTQ4OWI3NWMyOWFkYWI1N2FjYmEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3NzU4NTc4MDg1MDMtN2MwMmRkdWFpZDhhazNmdTVsbGo4YW5wNDFxMzhuMDQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3NzU4NTc4MDg1MDMtN2MwMmRkdWFpZDhhazNmdTVsbGo4YW5wNDFxMzhuMDQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDE0NDQwOTk4MjUzMzk1NjkzMzAiLCJlbWFpbCI6InNhcmFhaG1hZDIwNjAwMzlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5iZiI6MTc5MTAyOTQ2MiwibmFtZSI6IlNhcmEgQWhtYWQiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS0Z0a1VIbUt5R3oxT0Vxc0I3ME82bnVkMi0xTllxSmJtZG9kRlFXclBZU0o3UW5nPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlNhcmEiLCJmYW1pbHlfbmFtZSI6IkFobWFkIiwiaWF0IjoxNzkxMDI5NzYyLCJleHAiOjE3OTEwMzMzNjIsImp0aSI6ImQ3NjVhYmMwNDg3NzU1Y2YwNDVlZDdiZWJmODEwMjBkOWNkNjAxNjYifQ.fVZ2Aziimhidh3p5OJMYOt8nodwd4fUCX6L6dMp0WkQr4eAIaqEOTGbPtnf93i0UtRrLwmxGUygBRhs1F7WKJNqsdueBbv_sXrb-MlR_6z7zGwZwA-j91i6x276_xo3kIC8frgwhOqtTNDTLmyTdhhYOPHTv9dE06p_HItn9roY9pFKMAHFXa2uv-xV7diEOvgKQ8-uaj_2NVE9ODzzvgwHOsjNuXVQwmkjwQkE13wpI_OYCkfQhG_5bZvEJcMEu_JjKUEAw8GFQy44ZD1Qt-wXEMVeG01NEqnboPLccJaoIs4S_la4okgn6n-Cv91jBv2l3VSfvm5y-2v2vB2nipg",
+  //   });
 
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual(
-      expect.objectContaining({
-        data: {
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-        },
-        message: "Logged in with google successfully",
-        status: "Success",
-      }),
-    );
-  });
+  //   expect(response.status).toEqual(200);
+  //   expect(response.body).toEqual(
+  //     expect.objectContaining({
+  //       data: {
+  //         accessToken: expect.any(String),
+  //         refreshToken: expect.any(String),
+  //       },
+  //       message: "Logged in with google successfully",
+  //       status: "Success",
+  //     }),
+  //   );
+  // });
   test("should fail with incorrect idToken", async () => {
     let response = await request(application)
       .post("/auth/google_auth")

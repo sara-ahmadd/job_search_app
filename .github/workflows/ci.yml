@@ -46,6 +46,20 @@ jobs:
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
     steps:
+      - name: Check environment variables
+        run: |
+          node -e "
+            const required = [
+              'TEST_DB_URI',
+              'CLIENT_ID',
+              'CLIENT_SECRET',
+              'JWT_SECRET'
+            ];
+
+            required.forEach(key => {
+              console.log(key + ': ' + (process.env[key] ? 'EXISTS' : 'MISSING'));
+            });
+          "
       - name: Checkout Code
         uses: actions/checkout@v4
 
